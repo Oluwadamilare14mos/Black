@@ -307,9 +307,21 @@
   menuBtn.addEventListener('click', openSidebar);
   closeSidebar.addEventListener('click', closeMenu);
   overlay.addEventListener('click', closeMenu);
-  signinBtn.addEventListener('click', ()=> window.location.href='login.html');
-  signoutBtn.addEventListener('click', async ()=> { try { await signOut(auth); window.location.href='login.html'; } catch(e){ alert(e.message); } });
+  // Login button
+signinBtn.addEventListener('click', () => {
+  window.location.href = 'login.html';
+});
 
+// Sign out
+signoutBtn.addEventListener('click', async () => {
+  try {
+    await signOut(auth);
+    window.location.href = 'login.html';
+  } catch (e) {
+    alert(e.message);
+  }
+});
+    
   // profile toggle
   profileToggle.addEventListener('click', ()=>{
     if (profileOptions.style.display === 'block') { profileOptions.style.display = 'none'; } else { profileOptions.style.display = 'block'; }
