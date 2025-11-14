@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Admin — Send Notifications</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style> body{ font-family:Poppins, sans-serif; background:#0b0b0b; color:#fff; } </style>
+</head>
+<body class="min-h-screen p-6">
+  <header class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold text-[#ff6600]">Admin — Notifications</h1>
+    <div>
+      <button id="btnSignOut" class="px-3 py-2 bg-gray-800 rounded">Sign out</button>
+    </div>
+  </header>
+
+  <div class="grid grid-cols-1 gap-4 max-w-2xl">
+    <label class="block">
+      <span>Target</span>
+      <select id="target" class="w-full p-2 rounded bg-[#111]">
+        <option value="all">All users</option>
+        <option value="uid">Specific user (enter UID below)</option>
+      </select>
+    </label>
+
+    <input id="targetUid" placeholder="User UID (only if Specific user)" class="w-full p-2 rounded bg-[#111]" />
+
+    <input id="title" placeholder="Notification Title" class="w-full p-2 rounded bg-[#111]" />
+    <textarea id="message" rows="4" placeholder="Message body" class="w-full p-2 rounded bg-[#111]"></textarea>
+
+    <div class="flex gap-2">
+      <button id="btnSend" class="px-4 py-2 bg-[#ff6600] text-black rounded font-semibold">Send</button>
+      <button id="btnStore" class="px-4 py-2 bg-gray-800 rounded">Store (only)</button>
+    </div>
+
+    <div id="status" class="text-sm text-gray-300"></div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+    import { getFirestore, collection, addDoc, getDocs, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDsrL5UHWeFtQAX5XCI1hX7As91PWz59Cs",
+      authDomain: "black-1108.firebaseapp.com",
+      projectId: "black-1108",
+      storageBucket: "black-1108.firebasestorage.app",
+      messagingSenderId: "639439190327",
+      appId: "1:639439190327:web:b08b640aba7e8f7d76c2b2"
+    };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // >>> REPLACE with your admin UID(s) <<< (string)
+    const ADMIN_UID = "REPLACE_WITH_YOUR_ADMIN_UID";
+
+    const targetEl = document.getElementById('target');
+    const targetUidEl = document.getElementById('targetUid');
+    const titleEl = document.getElementById('title');
+    const messageEl = document.getElementById('message');
+    const statusEl = document.getElementById('status');
+    const btnSend = document.getElementById('btnSend');
+    const btnStore = document.getElementById('btnStore');
+    const btnSignOut = document.getElementById('btnSignOut');
+
+    function setStatus(t){ statusEl.textContent = t; }
+
+    onAuthStateChanged(auth, user => {
+      if (!user) {
+        window.location.href = 'login.html';
+        return;
+      }
+      if (user.uid !== ADMIN_UID) {
+        alert('You are not allowed to access admin panel.');
+        window.location.href = 'index.html';
+        return;
+      }
+      setStatus('Admin verified: ' + (user.email||user.uid));
+    });
+
+    btnSignOut.addEventListener('click', async ()=> { await signOut(auth); window.location.href='login.html'; });
+
+    btnStore.addEventListener('click', async ()=>{
+      const payload = {
+        title: titleEl.value.trim() || 'Announcement',
+        message: messageEl.value.trim(),
+        userId: (targetEl.value === 'uid' ? targetUidEl.value.trim() : null),
+        timestamp: new Date()
+      };
+      // store in notifications collection (for client realtime)
+      await addDoc(collection(db, "notifications"), payload);
+      setStatus('Stored notification document.');
+    });
+
+    btnSend.addEventListener('click', async ()=> {
+      const title = titleEl.value.trim();
+      const message = messageEl.value.trim();
+      const target = targetEl.value;
+      if (!title || !message) { setStatus('Title and message required'); return; }
+
+      setStatus('Sending...');
+      try {
+        if (target === 'all') {
+          // Get all users tokens from users collection (must exist)
+          const usersSnap = await getDocs(collection(db, "users"));
+          const tokens = [];
+          usersSnap.forEach(u => {
+            const data = u.data();
+            if (data.fcmToken) tokens.push({ token: data.fcmToken, uid: u.id });
+          });
+
+          // Store a notifications doc per user (so they appear in realtime list)
+          const batchPromises = tokens.map(tk => addDoc(collection(db, "notifications"), {
+            userId: tk.uid,
+            title,
+            message,
+            timestamp: new Date()
+          }));
+          await Promise.all(batchPromises);
+
+          setStatus(`Stored notifications for ${tokens.length} users.`);
+
+          // ===> TO SEND ACTUAL PUSH MESSAGES (PRODUCTION SAFE METHOD)
+          // You should run a trusted server or Firebase Cloud Function that:
+          // 1) reads tokens from Firestore
+          // 2) calls FCM send endpoint using SERVER_KEY (server key must not be in client)
+          //
+          // Example flow:
+          // - cloud function listens for new docs in "push_queue" and sends using admin.messaging()
+          //
+          // I did NOT include server key here for security. If you need the Cloud Function code, I can provide it.
+        } else {
+          // target single UID: store doc and optionally send via server
+          const uid = targetUidEl.value.trim();
+          if (!uid) { setStatus('Enter UID'); return; }
+          await addDoc(collection(db, "notifications"), {
+            userId: uid,
+            title,
+            message,
+            timestamp: new Date()
+          });
+          setStatus('Stored notification for user ' + uid);
+        }
+      } catch (e) {
+        console.error(e);
+        setStatus('Error: ' + e.message);
+      }
+    });
+  </script>
+</body>
+</html>
