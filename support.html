@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Support — Black</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: "#ff6600",
+            dark: "#0b0b0b",
+          },
+          fontFamily: { poppins: ["Poppins", "sans-serif"] },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    body { 
+      background: #0b0b0b;
+      font-family: Poppins, sans-serif;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen text-white">
+
+  <!-- HEADER -->
+  <header class="p-5 bg-dark shadow-lg flex justify-between items-center">
+    <h1 class="text-2xl font-bold text-brand">Support</h1>
+    <a href="profile.html" class="bg-brand text-black px-4 py-2 rounded-lg text-sm font-semibold">Back</a>
+  </header>
+
+  <div class="p-5 space-y-8">
+
+    <!-- SUPPORT CATEGORIES -->
+    <section class="bg-[#111] p-5 rounded-xl border border-gray-700 shadow-lg">
+      <h2 class="text-xl font-semibold text-brand mb-3">How can we help you?</h2>
+
+      <div class="grid grid-cols-1 gap-4">
+        <a href="#faq" class="p-4 bg-dark rounded-lg border border-gray-700 hover:border-brand transition">
+          🔍 Frequently Asked Questions
+        </a>
+
+        <a href="#contact" class="p-4 bg-dark rounded-lg border border-gray-700 hover:border-brand transition">
+          📝 Contact Support
+        </a>
+
+        <a href="#report" class="p-4 bg-dark rounded-lg border border-gray-700 hover:border-brand transition">
+          🚫 Report a Problem
+        </a>
+
+        <!-- Updated Live Chat Link -->
+        <a href="https://wa.me/2347054700008?text=Hello%20Danny%2C%20I%20need%20support%20on..." 
+           class="p-4 bg-dark rounded-lg border border-green-600 hover:border-brand transition">
+          💬 Live Chat with Danny
+        </a>
+      </div>
+    </section>
+
+    <!-- FAQ SECTION -->
+    <section id="faq" class="bg-[#111] p-5 rounded-xl border border-gray-700 shadow-lg">
+      <h2 class="text-xl font-semibold text-brand mb-3">FAQ</h2>
+
+      <div class="space-y-4">
+
+        <details class="bg-dark p-4 rounded-lg border border-gray-700">
+          <summary class="font-semibold cursor-pointer">How do I track my order?</summary>
+          <p class="mt-2 text-gray-300">You can track your orders inside the "Orders" page in your account dashboard.</p>
+        </details>
+
+        <details class="bg-dark p-4 rounded-lg border border-gray-700">
+          <summary class="font-semibold cursor-pointer">How do I reset my password?</summary>
+          <p class="mt-2 text-gray-300">Go to Settings → Change Password.</p>
+        </details>
+
+        <details class="bg-dark p-4 rounded-lg border border-gray-700">
+          <summary class="font-semibold cursor-pointer">What payment methods do you accept?</summary>
+          <p class="mt-2 text-gray-300">Currently we accept card payments and wallet payments (coming soon).</p>
+        </details>
+
+        <details class="bg-dark p-4 rounded-lg border border-gray-700">
+          <summary class="font-semibold cursor-pointer">How do I delete my account?</summary>
+          <p class="mt-2 text-gray-300">Go to Settings → Danger Zone → Delete Account Permanently.</p>
+        </details>
+
+      </div>
+    </section>
+
+    <!-- CONTACT FORM -->
+    <section id="contact" class="bg-[#111] p-5 rounded-xl border border-gray-700 shadow-lg">
+      <h2 class="text-xl font-semibold text-brand mb-4">Contact Support</h2>
+
+      <form class="space-y-4">
+        <input type="text" placeholder="Your Name" class="w-full p-3 rounded-lg bg-dark border border-gray-700" required>
+
+        <input type="email" placeholder="Your Email" class="w-full p-3 rounded-lg bg-dark border border-gray-700" required>
+
+        <textarea placeholder="How can we help you?" rows="4" class="w-full p-3 rounded-lg bg-dark border border-gray-700" required></textarea>
+
+        <button type="submit" class="w-full bg-brand text-black p-3 rounded-lg font-semibold hover:bg-orange-500 transition">
+          Submit Request
+        </button>
+      </form>
+    </section>
+
+    <!-- REPORT PROBLEM -->
+    <section id="report" class="bg-[#111] p-5 rounded-xl border border-red-700 shadow-lg">
+      <h2 class="text-xl font-semibold text-red-400 mb-4">Report a Problem</h2>
+
+      <form class="space-y-4">
+        <textarea placeholder="Describe the issue…" rows="4" class="w-full p-3 rounded-lg bg-dark border border-red-700 text-red-300" required></textarea>
+
+        <button type="submit" class="w-full bg-red-600 text-white p-3 rounded-lg font-semibold hover:bg-red-700 transition">
+          Report Issue
+        </button>
+      </form>
+    </section>
+
+  </div>
+
+  
+  <!-- FIREBASE AUTH PROTECTION -->
+  <script type="module">
+    import { 
+      initializeApp 
+    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+
+    import { 
+      getAuth, 
+      onAuthStateChanged 
+    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDsrL5UHWeFtQAX5XCI1hX7As91PWz59Cs",
+      authDomain: "black-1108.firebaseapp.com",
+      projectId: "black-1108",
+      storageBucket: "black-1108.firebasestorage.app",
+      messagingSenderId: "639439190327",
+      appId: "1:639439190327:web:b08b640aba7e8f7d76c2b2"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // 🔒 AUTH PROTECTION
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        window.location.href = "login.html";
+      }
+    });
+  </script>
+
+</body>
+</html>
