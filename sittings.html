@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Settings — Black</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: "#ff6600",
+            dark: "#0b0b0b",
+          },
+          fontFamily: { poppins: ["Poppins", "sans-serif"] },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    body { background: #0b0b0b; font-family: Poppins, sans-serif; }
+  </style>
+</head>
+
+<body class="min-h-screen text-white">
+
+  <!-- HEADER -->
+  <header class="p-5 bg-dark shadow-lg flex justify-between items-center">
+    <h1 class="text-2xl font-bold text-brand">Settings</h1>
+    <a href="profile.html" class="bg-brand text-black px-4 py-2 rounded-lg text-sm font-semibold">Back</a>
+  </header>
+
+  <!-- SETTINGS CONTENT -->
+  <div class="p-5 space-y-6">
+
+    <!-- ACCOUNT SECTION -->
+    <section class="bg-[#111] p-5 rounded-xl border border-gray-700 shadow-lg">
+      <h2 class="text-xl font-semibold text-brand mb-3">Account</h2>
+
+      <div class="space-y-4">
+        <a href="edit-profile.html" class="block bg-dark p-4 rounded-lg border border-gray-700 hover:border-brand transition">
+          Edit Profile
+        </a>
+
+        <a href="change-password.html" class="block bg-dark p-4 rounded-lg border border-gray-700 hover:border-brand transition">
+          Change Password
+        </a>
+
+        <button id="deleteAccountBtn" class="w-full bg-red-600 p-4 rounded-lg font-semibold hover:bg-red-700 transition">
+          Delete Account
+        </button>
+      </div>
+    </section>
+
+    <!-- APP SETTINGS -->
+    <section class="bg-[#111] p-5 rounded-xl border border-gray-700 shadow-lg">
+      <h2 class="text-xl font-semibold text-brand mb-3">App Settings</h2>
+
+      <div class="space-y-4">
+        <label class="flex items-center justify-between bg-dark p-4 rounded-lg border border-gray-700">
+          Notifications
+          <input type="checkbox" id="notifyToggle" class="w-5 h-5" checked>
+        </label>
+
+        <label class="flex items-center justify-between bg-dark p-4 rounded-lg border border-gray-700">
+          Dark Mode
+          <input type="checkbox" id="darkModeToggle" class="w-5 h-5" checked>
+        </label>
+      </div>
+    </section>
+
+    <!-- PRIVACY -->
+    <section class="bg-[#111] p-5 rounded-xl border border-gray-700 shadow-lg">
+      <h2 class="text-xl font-semibold text-brand mb-3">Privacy & Security</h2>
+
+      <div class="space-y-4">
+        <a href="#" class="block bg-dark p-4 rounded-lg border border-gray-700 hover:border-brand transition">
+          Terms & Conditions
+        </a>
+
+        <a href="#" class="block bg-dark p-4 rounded-lg border border-gray-700 hover:border-brand transition">
+          Privacy Policy
+        </a>
+
+        <a href="#" class="block bg-dark p-4 rounded-lg border border-gray-700 hover:border-brand transition">
+          Security Tips
+        </a>
+      </div>
+    </section>
+
+    <!-- SIGN OUT -->
+    <section>
+      <button id="signOutBtn" class="w-full bg-brand text-black p-4 rounded-xl font-bold text-lg hover:bg-orange-500 transition">
+        Sign Out
+      </button>
+    </section>
+
+  </div>
+
+  <!-- FIREBASE -->
+  <script type="module">
+    import { 
+      initializeApp 
+    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+
+    import { 
+      getAuth, 
+      onAuthStateChanged,
+      signOut, 
+      deleteUser
+    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
+    import {
+      getFirestore,
+      collection,
+      query,
+      where,
+      getDocs,
+      deleteDoc,
+      doc
+    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDsrL5UHWeFtQAX5XCI1hX7As91PWz59Cs",
+      authDomain: "black-1108.firebaseapp.com",
+      projectId: "black-1108",
+      storageBucket: "black-1108.firebasestorage.app",
+      messagingSenderId: "639439190327",
+      appId: "1:639439190327:web:b08b640aba7e8f7d76c2b2"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // 🔒 AUTH PROTECTION
+    onAuthStateChanged(auth, (user) => {
+      if (!user) window.location.href = "login.html";
+    });
+
+    // 🟠 SIGN OUT
+    document.getElementById("signOutBtn").addEventListener("click", async () => {
+      await signOut(auth);
+      window.location.href = "login.html";
+    });
+
+    // 🔴 DELETE ACCOUNT (removes from all Firestore collections)
+    document.getElementById("deleteAccountBtn").addEventListener("click", async () => {
+      if (!confirm("Are you sure you want to permanently delete your account?")) return;
+
+      const user = auth.currentUser;
+
+      // Remove wishlist, cart, etc.
+      const collectionsToDelete = ["wishlist", "cart", "orders"];
+
+      for (const col of collectionsToDelete) {
+        const q = query(collection(db, col), where("userId", "==", user.uid));
+        const snapshot = await getDocs(q);
+        snapshot.forEach(async (docu) => {
+          await deleteDoc(doc(db, col, docu.id));
+        });
+      }
+
+      // Delete account
+      await deleteUser(user);
+
+      alert("Account deleted successfully.");
+      window.location.href = "login.html";
+    });
+  </script>
+
+</body>
+</html>
