@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Out — Black</title>
+
+  <link rel="icon" href="https://img.icons8.com/ios-filled/50/ff6600/t-shirt.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: "#ff6600",
+            accent: "#ff3300",
+            dark: "#111827"
+          },
+          fontFamily: { poppins: ["Poppins", "sans-serif"] },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    body { font-family: Poppins, sans-serif; }
+
+    /* Smooth Fade-in Page Load */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeIn 0.6s forwards;
+    }
+    @keyframes fadeIn {
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Fade-out logout animation */
+    .fade-out {
+      animation: fadeOut 0.5s forwards;
+    }
+    @keyframes fadeOut {
+      to { opacity: 0; transform: scale(0.95); }
+    }
+
+    /* Loading Spinner */
+    .spinner {
+      border: 4px solid #ddd;
+      border-top-color: #ff6600;
+      border-radius: 50%;
+      width: 35px;
+      height: 35px;
+      animation: spin 0.7s linear infinite;
+      margin: auto;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+
+<body class="min-h-screen flex items-center justify-center bg-gray-100">
+
+  <!-- CARD -->
+  <div id="card" class="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md text-center fade-in">
+
+    <!-- USER PHOTO -->
+    <img id="userPhoto" class="w-24 h-24 rounded-full mx-auto mb-4 shadow-lg" 
+         src="https://img.icons8.com/ios-filled/100/000000/user.png" />
+
+    <!-- USER NAME -->
+    <h2 id="userName" class="text-2xl font-bold text-dark mb-2">Hello</h2>
+
+    <p class="text-gray-600 mb-6">Are you sure you want to sign out?</p>
+
+    <!-- BUTTON -->
+    <button id="logoutBtn"
+      class="w-full py-3 bg-red-600 text-white rounded-full font-semibold text-lg hover:bg-red-700 transition">
+      Yes, Sign Me Out
+    </button>
+
+    <!-- CANCEL -->
+    <a href="index.html" class="block mt-4 text-brand font-semibold text-sm">Cancel</a>
+  </div>
+
+  <!-- LOADING OVERLAY -->
+  <div id="loadingOverlay" 
+       class="hidden fixed inset-0 bg-white/90 flex flex-col items-center justify-center">
+      <div class="spinner"></div>
+      <p class="mt-4 text-dark font-medium text-lg">Signing you out...</p>
+  </div>
+
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { 
+      getAuth, 
+      signOut, 
+      onAuthStateChanged 
+    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDsrL5UHWeFtQAX5XCI1hX7As91PWz59Cs",
+      authDomain: "black-1108.firebaseapp.com",
+      projectId: "black-1108",
+      storageBucket: "black-1108.firebasestorage.app",
+      messagingSenderId: "639439190327",
+      appId: "1:639439190327:web:b08b640aba7e8f7d76c2b2"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    const userName = document.getElementById("userName");
+    const userPhoto = document.getElementById("userPhoto");
+    const logoutBtn = document.getElementById("logoutBtn");
+    const card = document.getElementById("card");
+    const loadingOverlay = document.getElementById("loadingOverlay");
+
+    // Show user info
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        window.location.href = "login.html";
+        return;
+      }
+
+      userName.textContent = user.displayName || "User";
+      userPhoto.src = user.photoURL || "https://img.icons8.com/ios-filled/100/000000/user.png";
+    });
+
+    // Logout with animation + loading
+    logoutBtn.addEventListener("click", async () => {
+      // Fade out card
+      card.classList.add("fade-out");
+
+      // Wait for fade animation
+      setTimeout(() => {
+        card.classList.add("hidden");
+        loadingOverlay.classList.remove("hidden");
+      }, 400);
+
+      // Actually sign out
+      await signOut(auth);
+
+      // Redirect
+      setTimeout(() => {
+        window.location.href = "login.html";
+      }, 800);
+    });
+  </script>
+
+</body>
+</html>
