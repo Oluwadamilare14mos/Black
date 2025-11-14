@@ -50,10 +50,6 @@
         <a href="change-password.html" class="block bg-dark p-4 rounded-lg border border-gray-700 hover:border-brand transition">
           Change Password
         </a>
-
-        <button id="deleteAccountBtn" class="w-full bg-red-600 p-4 rounded-lg font-semibold hover:bg-red-700 transition">
-          Delete Account
-        </button>
       </div>
     </section>
 
@@ -93,6 +89,23 @@
       </div>
     </section>
 
+    <!-- DANGER ZONE -->
+    <section class="bg-red-900/40 p-5 rounded-xl border border-red-700 shadow-xl">
+      <h2 class="text-xl font-semibold text-red-400 mb-3 flex items-center gap-2">
+        ⚠️ Danger Zone
+      </h2>
+
+      <p class="text-red-300 text-sm mb-4">
+        Permanently deleting your account will remove all your data, orders, wishlist, and profile.
+        This action cannot be undone.
+      </p>
+
+      <a href="delete-account.html"
+         class="block w-full text-center py-3 bg-red-600 hover:bg-red-700 transition text-white rounded-lg font-semibold">
+         Delete Account Permanently
+      </a>
+    </section>
+
     <!-- SIGN OUT -->
     <section>
       <button id="signOutBtn" class="w-full bg-brand text-black p-4 rounded-xl font-bold text-lg hover:bg-orange-500 transition">
@@ -111,19 +124,8 @@
     import { 
       getAuth, 
       onAuthStateChanged,
-      signOut, 
-      deleteUser
+      signOut
     } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-
-    import {
-      getFirestore,
-      collection,
-      query,
-      where,
-      getDocs,
-      deleteDoc,
-      doc
-    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDsrL5UHWeFtQAX5XCI1hX7As91PWz59Cs",
@@ -136,7 +138,6 @@
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-    const db = getFirestore(app);
 
     // 🔒 AUTH PROTECTION
     onAuthStateChanged(auth, (user) => {
@@ -146,30 +147,6 @@
     // 🟠 SIGN OUT
     document.getElementById("signOutBtn").addEventListener("click", async () => {
       await signOut(auth);
-      window.location.href = "login.html";
-    });
-
-    // 🔴 DELETE ACCOUNT (removes from all Firestore collections)
-    document.getElementById("deleteAccountBtn").addEventListener("click", async () => {
-      if (!confirm("Are you sure you want to permanently delete your account?")) return;
-
-      const user = auth.currentUser;
-
-      // Remove wishlist, cart, etc.
-      const collectionsToDelete = ["wishlist", "cart", "orders"];
-
-      for (const col of collectionsToDelete) {
-        const q = query(collection(db, col), where("userId", "==", user.uid));
-        const snapshot = await getDocs(q);
-        snapshot.forEach(async (docu) => {
-          await deleteDoc(doc(db, col, docu.id));
-        });
-      }
-
-      // Delete account
-      await deleteUser(user);
-
-      alert("Account deleted successfully.");
       window.location.href = "login.html";
     });
   </script>
