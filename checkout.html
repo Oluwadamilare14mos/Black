@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Checkout — Black</title>
+  <link rel="icon" href="https://img.icons8.com/ios-filled/50/ff6600/t-shirt.png" />
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { brand: "#ff6600", dark: "#0b0b0b" },
+          fontFamily: { poppins: ["Poppins", "sans-serif"] }
+        }
+      }
+    };
+  </script>
+
+  <style>
+    body { font-family: Poppins, sans-serif; background:#0b0b0b; color:#fff; }
+    .card { background:#0f0f10; border-radius:12px; padding:18px; border:1px solid rgba(255,255,255,0.04); }
+    .muted { color: #9ca3af; }
+  </style>
+</head>
+<body class="min-h-screen">
+
+  <header class="p-5 bg-dark shadow flex items-center justify-between">
+    <h1 class="text-2xl font-bold text-brand">Checkout</h1>
+    <a href="cart.html" class="bg-brand text-black px-4 py-2 rounded-lg text-sm font-semibold">Back to Cart</a>
+  </header>
+
+  <main class="p-6 max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- LEFT: Shipping & Payment -->
+    <section class="lg:col-span-2 space-y-6">
+
+      <!-- Shipping details -->
+      <div class="card">
+        <h2 class="text-lg font-semibold mb-3">Shipping details</h2>
+        <form id="checkoutForm" class="space-y-3">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <input type="text" id="firstName" placeholder="First name" required class="w-full p-3 rounded bg-transparent border border-gray-700" />
+            <input type="text" id="lastName" placeholder="Last name" required class="w-full p-3 rounded bg-transparent border border-gray-700" />
+          </div>
+
+          <input type="tel" id="phone" placeholder="Phone number" required class="w-full p-3 rounded bg-transparent border border-gray-700" />
+          <input type="email" id="email" placeholder="Email address" required class="w-full p-3 rounded bg-transparent border border-gray-700" />
+
+          <input type="text" id="address" placeholder="Street address" required class="w-full p-3 rounded bg-transparent border border-gray-700" />
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <input type="text" id="city" placeholder="City" required class="w-full p-3 rounded bg-transparent border border-gray-700" />
+            <input type="text" id="state" placeholder="State / Region" required class="w-full p-3 rounded bg-transparent border border-gray-700" />
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <input type="text" id="postal" placeholder="Postal / ZIP code" class="w-full p-3 rounded bg-transparent border border-gray-700" />
+            <select id="country" class="w-full p-3 rounded bg-transparent border border-gray-700">
+              <option value="NG">Nigeria</option>
+              <option value="US">United States</option>
+              <option value="GB">United Kingdom</option>
+              <!-- add more if needed -->
+            </select>
+          </div>
+        </form>
+      </div>
+
+      <!-- Delivery options -->
+      <div class="card">
+        <h2 class="text-lg font-semibold mb-3">Delivery options</h2>
+
+        <div class="space-y-2">
+          <label class="flex items-center justify-between p-3 rounded border border-gray-700">
+            <div>
+              <div class="font-semibold">Standard Delivery</div>
+              <div class="muted text-sm">3-5 business days</div>
+            </div>
+            <div>
+              <input type="radio" name="delivery" value="1500" checked />
+            </div>
+          </label>
+
+          <label class="flex items-center justify-between p-3 rounded border border-gray-700">
+            <div>
+              <div class="font-semibold">Express Delivery</div>
+              <div class="muted text-sm">1-2 business days</div>
+            </div>
+            <div>
+              <input type="radio" name="delivery" value="2500" />
+            </div>
+          </label>
+
+          <label class="flex items-center justify-between p-3 rounded border border-gray-700">
+            <div>
+              <div class="font-semibold">Pickup Station</div>
+              <div class="muted text-sm">Pick up from store</div>
+            </div>
+            <div>
+              <input type="radio" name="delivery" value="0" />
+            </div>
+          </label>
+
+        </div>
+      </div>
+
+      <!-- Payment methods -->
+      <div class="card">
+        <h2 class="text-lg font-semibold mb-3">Payment</h2>
+
+        <div class="space-y-3">
+
+          <!-- Paystack -->
+          <div class="p-3 border border-gray-700 rounded">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="font-semibold">Paystack (Card)</div>
+                <div class="muted text-sm">Secure card payments via Paystack.</div>
+              </div>
+              <div>
+                <button id="paystackBtn" class="px-4 py-2 bg-brand text-black rounded font-semibold">Pay with Paystack</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Flutterwave placeholder -->
+          <div class="p-3 border border-gray-700 rounded">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="font-semibold">Flutterwave (Card)</div>
+                <div class="muted text-sm">Paste your Flutterwave public key in code to enable.</div>
+              </div>
+              <div>
+                <button id="flutterwaveBtn" class="px-4 py-2 bg-gray-600 text-white rounded font-semibold">Pay with Flutterwave</button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bank transfer -->
+          <div class="p-3 border border-gray-700 rounded">
+            <div class="font-semibold mb-2">Bank / Transfer</div>
+            <div class="text-sm muted mb-2">Use the details below to transfer. After transfer, upload proof in Orders or contact support.</div>
+
+            <div class="bg-[#0b0b0b] p-3 rounded border border-gray-800">
+              <p class="text-sm"><strong>Account name:</strong> Olaniyi funke</p>
+              <p class="text-sm"><strong>Account number:</strong> 8117854139</p>
+              <p class="text-sm"><strong>Bank:</strong> Opay</p>
+            </div>
+
+            <div class="mt-3">
+              <button id="bankTransferBtn" class="px-4 py-2 bg-brand text-black rounded font-semibold">Place order (Bank Transfer)</button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Notes -->
+      <div class="card">
+        <h3 class="font-semibold">Notes</h3>
+        <ul class="muted mt-2 text-sm list-disc pl-5">
+          <li>Paystack modal uses the public key only — secret key verify on server.</li>
+          <li>Flutterwave support is ready but requires your public key (set in JS).</li>
+          <li>Bank transfers are marked pending until you confirm payment with proof.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- RIGHT: Cart summary -->
+    <aside class="space-y-4">
+      <div class="card">
+        <h2 class="text-lg font-semibold mb-3">Order summary</h2>
+
+        <div id="cartItems" class="space-y-3 max-h-72 overflow-auto"></div>
+
+        <div class="border-t border-gray-800 mt-4 pt-4 space-y-2">
+          <div class="flex justify-between">
+            <div class="muted">Subtotal</div><div id="subtotalDisplay">#0</div>
+          </div>
+          <div class="flex justify-between">
+            <div class="muted">Delivery</div><div id="deliveryDisplay">#0</div>
+          </div>
+          <div class="flex justify-between font-semibold text-lg">
+            <div>Total</div><div id="totalDisplay">#0</div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="card text-center">
+        <button id="placeOrderBtn" class="w-full px-4 py-3 bg-brand text-black font-semibold rounded">Place Order (Default)</button>
+        <p class="muted text-xs mt-2">Default places an order pending payment. Use Pay buttons above to pay immediately.</p>
+      </div>
+    </aside>
+  </main>
+
+  <!-- Paystack inline -->
+  <script src="https://js.paystack.co/v1/inline.js"></script>
+  <!-- Flutterwave sdk (optional) -->
+  <script src="https://checkout.flutterwave.com/v3.js"></script>
+
+  <!-- FIREBASE + PAYMENT LOGIC -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+    import {
+      getFirestore, collection, addDoc, serverTimestamp, setDoc, doc
+    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+    // ---------- CONFIG ----------
+    const firebaseConfig = {
+      apiKey: "AIzaSyDsrL5UHWeFtQAX5XCI1hX7As91PWz59Cs",
+      authDomain: "black-1108.firebaseapp.com",
+      projectId: "black-1108",
+      storageBucket: "black-1108.firebasestorage.app",
+      messagingSenderId: "639439190327",
+      appId: "1:639439190327:web:b08b640aba7e8f7d76c2b2"
+    };
+
+    // Paystack public key (you gave)
+    const PAYSTACK_KEY = "pk_test_c05adcec42348c051e8341ad257f1a273c850425";
+
+    // Flutterwave public key placeholder - paste your FLW pub key here later:
+    let FLW_PUBLIC_KEY = "FLWPUBK_TEST-REPLACE_WITH_YOUR_KEY";
+
+    // ---------- INIT ----------
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // UI refs
+    const cartItemsEl = document.getElementById("cartItems");
+    const subtotalDisplay = document.getElementById("subtotalDisplay");
+    const deliveryDisplay = document.getElementById("deliveryDisplay");
+    const totalDisplay = document.getElementById("totalDisplay");
+    const placeOrderBtn = document.getElementById("placeOrderBtn");
+    const paystackBtn = document.getElementById("paystackBtn");
+    const flutterwaveBtn = document.getElementById("flutterwaveBtn");
+    const bankTransferBtn = document.getElementById("bankTransferBtn");
+    const checkoutForm = document.getElementById("checkoutForm");
+
+    // demo cart — in your app you would build this from user's cart (localStorage or Firestore)
+    // Keep structure: { id, name, qty, price } — price in Naira numeric (e.g., 12500)
+    let cart = [
+      { id: 101, name: "Classic Polo Shirt", qty: 1, price: 8500 },
+      { id: 202, name: "Denim Jacket", qty: 1, price: 15000 }
+    ];
+
+    // ---------- UTILITIES ----------
+    function formatN(amount) {
+      return "#" + Number(amount).toLocaleString();
+    }
+
+    function calculateSubtotal() {
+      return cart.reduce((s, i) => s + (i.price * i.qty), 0);
+    }
+
+    function getSelectedDelivery() {
+      const r = document.querySelector('input[name="delivery"]:checked');
+      return r ? Number(r.value) : 0;
+    }
+
+    function renderCart() {
+      cartItemsEl.innerHTML = "";
+      const subtotal = calculateSubtotal();
+      cart.forEach(item => {
+        const div = document.createElement("div");
+        div.className = "flex justify-between items-center";
+        div.innerHTML = `<div>
+            <div class="font-semibold">${item.name}</div>
+            <div class="muted text-sm">Qty: ${item.qty}</div>
+          </div>
+          <div class="font-semibold">${formatN(item.price * item.qty)}</div>`;
+        cartItemsEl.appendChild(div);
+      });
+
+      subtotalDisplay.textContent = formatN(subtotal);
+      const delivery = getSelectedDelivery();
+      deliveryDisplay.textContent = formatN(delivery);
+      totalDisplay.textContent = formatN(subtotal + delivery);
+    }
+
+    // update totals when delivery option changes
+    document.querySelectorAll('input[name="delivery"]').forEach(el => {
+      el.addEventListener('change', renderCart);
+    });
+
+    renderCart();
+
+    // ---------- AUTH PROTECTION ----------
+    let currentUser = null;
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        window.location.href = "login.html";
+        return;
+      }
+      currentUser = user;
+    });
+
+    // ---------- CREATE ORDER - helper ----------
+    async function createOrderRecord(payload) {
+      // payload: { userId, items, subtotal, deliveryFee, total, shipping, paymentMethod, paymentStatus, paymentRef }
+      try {
+        const ordersRef = collection(db, "orders");
+        const orderDoc = await addDoc(ordersRef, {
+          ...payload,
+          createdAt: serverTimestamp()
+        });
+        // optionally set a human-friendly orderId inside the doc
+        await setDoc(doc(db, "orders", orderDoc.id), { orderId: orderDoc.id }, { merge: true });
+        return orderDoc.id;
+      } catch (err) {
+        console.error("Failed to create order", err);
+        throw err;
+      }
+    }
+
+    // ---------- PAYSTACK FLOW ----------
+    paystackBtn.addEventListener("click", async () => {
+      if (!currentUser) { alert("Please login first."); return; }
+
+      // Validate shipping fields
+      const f = new FormData(checkoutForm);
+      if (!f.get("firstName") && !document.getElementById("firstName").value.trim()) {
+        alert("Please provide shipping details.");
+        return;
+      }
+
+      const subtotal = calculateSubtotal();
+      const delivery = getSelectedDelivery();
+      const total = subtotal + delivery; // in Naira
+
+      // Create a 'pending' order first in Firestore
+      const orderPayload = {
+        userId: currentUser.uid,
+        items: cart,
+        subtotal,
+        deliveryFee: delivery,
+        total,
+        shipping: {
+          firstName: document.getElementById("firstName").value.trim(),
+          lastName: document.getElementById("lastName").value.trim(),
+          phone: document.getElementById("phone").value.trim(),
+          email: document.getElementById("email").value.trim(),
+          address: document.getElementById("address").value.trim(),
+          city: document.getElementById("city").value.trim(),
+          state: document.getElementById("state").value.trim(),
+          postal: document.getElementById("postal").value.trim(),
+          country: document.getElementById("country").value
+        },
+        paymentMethod: "paystack",
+        paymentStatus: "pending",
+        paymentRef: null
+      };
+
+      // Save order pending
+      let orderId;
+      try {
+        orderId = await createOrderRecord(orderPayload);
+      } catch (err) {
+        alert("Could not create order. Try again.");
+        return;
+      }
+
+      // Paystack requires amount in kobo (multiply by 100)
+      const handler = window.PaystackPop.setup({
+        key: PAYSTACK_KEY,
+        email: document.getElementById("email").value.trim() || currentUser.email,
+        amount: total * 100,
+        currency: "NGN",
+        metadata: {
+          orderId
+        },
+        onClose: function () {
+          alert("Payment window closed. You can complete payment later from Orders.");
+        },
+        callback: async function (response) {
+          // response.reference
+          // NOTE: Client-side verification is not secure — verify server-side in production
+          try {
+            // update the order doc with payment info
+            await setDoc(doc(db, "orders", orderId), {
+              paymentStatus: "paid",
+              paymentRef: response.reference,
+              paidAt: serverTimestamp()
+            }, { merge: true });
+
+            alert("Payment successful. Order placed.");
+            window.location.href = "orders.html";
+          } catch (err) {
+            console.error("Error updating order after payment", err);
+            alert("Payment succeeded but updating order failed. Contact support.");
+          }
+        }
+      });
+
+      handler.openIframe();
+    });
+
+    // ---------- FLUTTERWAVE FLOW (placeholder) ----------
+    flutterwaveBtn.addEventListener("click", async () => {
+      if (!currentUser) { alert("Please login first."); return; }
+
+      if (!FLW_PUBLIC_KEY || FLW_PUBLIC_KEY.includes("REPLACE")) {
+        alert("Flutterwave public key not set yet. Paste it in the JS (FLW_PUBLIC_KEY).");
+        return;
+      }
+
+      const subtotal = calculateSubtotal();
+      const delivery = getSelectedDelivery();
+      const total = subtotal + delivery; // in Naira
+
+      // Create pending order
+      const orderPayload = {
+        userId: currentUser.uid,
+        items: cart,
+        subtotal,
+        deliveryFee: delivery,
+        total,
+        paymentMethod: "flutterwave",
+        paymentStatus: "pending",
+        paymentRef: null
+      };
+
+      let orderId;
+      try {
+        orderId = await createOrderRecord(orderPayload);
+      } catch (err) {
+        alert("Could not create order. Try again.");
+        return;
+      }
+
+      // Flutterwave checkout (v3)
+      const txRef = "TXREF_" + Date.now();
+      const customerEmail = document.getElementById("email").value.trim() || currentUser.email;
+
+      FlutterwaveCheckout({
+        public_key: FLW_PUBLIC_KEY,
+        tx_ref: txRef,
+        amount: total,
+        currency: "NGN",
+        payment_options: "card, ussd, banktransfer",
+        customer: {
+          email: customerEmail,
+          phonenumber: document.getElementById("phone").value.trim(),
+          name: (document.getElementById("firstName").value || "") + " " + (document.getElementById("lastName").value || "")
+        },
+        callback: async function (data) {
+          // data.status === "successful"
+          try {
+            await setDoc(doc(db, "orders", orderId), {
+              paymentStatus: "paid",
+              paymentRef: data.transaction_id || data.flw_ref || txRef,
+              paidAt: serverTimestamp()
+            }, { merge: true });
+
+            alert("Payment successful. Order placed.");
+            window.location.href = "orders.html";
+          } catch (err) {
+            console.error("Error updating order after flutterwave", err);
+            alert("Payment succeeded but updating order failed. Contact support.");
+          }
+        },
+        onclose: function () {
+          // closed
+        }
+      });
+    });
+
+    // ---------- BANK TRANSFER ----------
+    bankTransferBtn.addEventListener("click", async () => {
+      if (!currentUser) { alert("Please login first."); return; }
+
+      const subtotal = calculateSubtotal();
+      const delivery = getSelectedDelivery();
+      const total = subtotal + delivery;
+
+      const orderPayload = {
+        userId: currentUser.uid,
+        items: cart,
+        subtotal,
+        deliveryFee: delivery,
+        total,
+        paymentMethod: "bank_transfer",
+        paymentStatus: "pending",
+        paymentRef: null,
+        bankDetails: {
+          accountName: "Olaniyi funke",
+          accountNumber: "8117854139",
+          bank: "Opay"
+        }
+      };
+
+      try {
+        await createOrderRecord(orderPayload);
+        alert("Order placed as pending. Please transfer to the provided bank details and upload proof in your Orders page.");
+        window.location.href = "orders.html";
+      } catch (err) {
+        alert("Failed to place order. Try again.");
+      }
+    });
+
+    // Place order default (no immediate payment)
+    placeOrderBtn.addEventListener("click", async () => {
+      if (!currentUser) { alert("Please login first."); return; }
+
+      const subtotal = calculateSubtotal();
+      const delivery = getSelectedDelivery();
+      const total = subtotal + delivery;
+
+      const orderPayload = {
+        userId: currentUser.uid,
+        items: cart,
+        subtotal,
+        deliveryFee: delivery,
+        total,
+        paymentMethod: "none",
+        paymentStatus: "pending"
+      };
+
+      try {
+        await createOrderRecord(orderPayload);
+        alert("Order created. Complete payment later from Orders.");
+        window.location.href = "orders.html";
+      } catch (err) {
+        alert("Failed to create order.");
+      }
+    });
+
+  </script>
+
+</body>
+</html>
