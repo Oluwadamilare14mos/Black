@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Order Successful — Black</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: "#ff6600",
+            dark: "#0b0b0b",
+          },
+          fontFamily: { poppins: ["Poppins", "sans-serif"] },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    body {
+      background: #0b0b0b;
+      font-family: Poppins, sans-serif;
+    }
+    .fade-in {
+      animation: fadeIn 1s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+
+<body class="min-h-screen text-white fade-in">
+
+  <!-- HEADER -->
+  <header class="p-5 bg-dark shadow-lg flex justify-between items-center border-b border-gray-800">
+    <h1 class="text-2xl font-bold text-brand">Order Successful</h1>
+    <a href="index.html" class="bg-brand text-black px-4 py-2 rounded-lg text-sm font-semibold">Home</a>
+  </header>
+
+  <!-- SUCCESS CONTENT -->
+  <div class="p-5 text-center">
+
+    <img src="https://img.icons8.com/emoji/200/checked-emoji.png" class="mx-auto mb-4">
+
+    <h2 class="text-3xl font-bold text-brand mb-3">Payment Successful!</h2>
+    <p class="text-gray-300 mb-6">Your order has been placed successfully.</p>
+
+    <div id="orderBox" class="bg-[#111] p-5 rounded-xl border border-gray-700 max-w-md mx-auto shadow-lg">
+      <h3 class="text-brand font-semibold text-xl mb-2">Order Details</h3>
+
+      <p id="orderId" class="text-gray-300 text-sm"></p>
+      <p id="amountPaid" class="text-gray-300 text-sm"></p>
+      <p id="paymentMethod" class="text-gray-300 text-sm"></p>
+
+      <p class="text-gray-500 text-xs mt-3">
+        A receipt has been sent to your email.
+      </p>
+    </div>
+
+    <a href="orders.html" 
+       class="mt-6 block bg-brand text-black py-3 px-6 rounded-xl font-semibold hover:bg-orange-500 transition max-w-sm mx-auto">
+      View My Orders
+    </a>
+
+    <p class="text-gray-500 text-xs mt-4">
+      Redirecting to orders page in <span id="countdown">8</span> seconds…
+    </p>
+  </div>
+
+  <!-- FIREBASE LOGIC -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDsrL5UHWeFtQAX5XCI1hX7As91PWz59Cs",
+      authDomain: "black-1108.firebaseapp.com",
+      projectId: "black-1108",
+      storageBucket: "black-1108.firebasestorage.app",
+      messagingSenderId: "639439190327",
+      appId: "1:639439190327:web:b08b640aba7e8f7d76c2b2"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    const orderIdElement = document.getElementById("orderId");
+    const amountPaidElement = document.getElementById("amountPaid");
+    const paymentMethodElement = document.getElementById("paymentMethod");
+
+    const urlParams = new URLSearchParams(window.location.search);
+    const orderId = urlParams.get("orderId");
+
+    // 🔒 ALLOW ONLY LOGGED IN USERS
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        window.location.href = "login.html";
+        return;
+      }
+
+      if (!orderId) {
+        orderIdElement.textContent = "No order found.";
+        return;
+      }
+
+      const orderRef = doc(db, "orders", orderId);
+      const orderSnap = await getDoc(orderRef);
+
+      if (!orderSnap.exists()) {
+        orderIdElement.textContent = "Order not found.";
+        return;
+      }
+
+      const data = orderSnap.data();
+
+      orderIdElement.textContent = `Order ID: ${orderId}`;
+      amountPaidElement.textContent = `Amount: ₦${data.totalAmount}`;
+      paymentMethodElement.textContent = `Payment Method: ${data.paymentMethod}`;
+    });
+
+    // AUTO REDIRECT
+    let timeLeft = 8;
+    const countdownEl = document.getElementById("countdown");
+    const timer = setInterval(() => {
+      timeLeft--;
+      countdownEl.textContent = timeLeft;
+
+      if (timeLeft <= 0) {
+        clearInterval(timer);
+        window.location.href = "orders.html";
+      }
+    }, 1000);
+  </script>
+
+</body>
+</html>
