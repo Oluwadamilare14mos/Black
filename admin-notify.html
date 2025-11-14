@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Admin Notification Sender</title>
+<style>
+body {
+  background: #000;
+  color: #fff;
+  font-family: Arial;
+  padding: 20px;
+}
+.container {
+  max-width: 500px;
+  margin: auto;
+  background: #111;
+  padding: 20px;
+  border-radius: 10px;
+}
+input, textarea, select {
+  width: 100%;
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 8px;
+  border: none;
+}
+button {
+  width: 100%;
+  padding: 14px;
+  background: #ff9800;
+  border: none;
+  border-radius: 8px;
+  color: #000;
+  font-weight: bold;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+  <h2>Send Notification</h2>
+
+  <select id="target">
+    <option value="all">Send to ALL users</option>
+  </select>
+
+  <input type="text" id="title" placeholder="Notification Title">
+  <textarea id="message" placeholder="Notification Message"></textarea>
+
+  <button onclick="sendNotification()">Send</button>
+  
+  <p id="status"></p>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+import { getFirestore, collection, getDocs, doc, addDoc } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "YOUR_KEY",
+  authDomain: "YOUR",
+  projectId: "YOUR",
+  storageBucket: "YOUR",
+  messagingSenderId: "YOUR",
+  appId: "YOUR"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
+async function sendNotification() {
+  const title = document.getElementById("title").value;
+  const message = document.getElementById("message").value;
+
+  if (!title || !message) return alert("Fill all fields");
+
+  document.getElementById("status").innerText = "Sending...";
+
+  const users = await getDocs(collection(db, "users"));
+
+  for (let u of users.docs) {
+    await addDoc(collection(db, "users", u.id, "notifications"), {
+      title,
+      message,
+      timestamp: new Date(),
+      read: false
+    });
+  }
+
+  document.getElementById("status").innerText = "Done!";
+}
+</script>
+</body>
+</html>
