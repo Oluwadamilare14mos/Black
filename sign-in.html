@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In — Black</title>
+
+  <link rel="icon" href="https://img.icons8.com/ios-filled/50/ff6600/t-shirt.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: "#ff6600",
+            accent: "#ff3300",
+            dark: "#111827"
+          },
+          fontFamily: { poppins: ["Poppins", "sans-serif"] },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    body { font-family: Poppins, sans-serif; background: #fff; }
+  </style>
+</head>
+<body class="flex items-center justify-center min-h-screen bg-gray-100">
+
+  <div class="w-full max-w-sm bg-white p-6 rounded-xl shadow-lg">
+    <h2 class="text-2xl font-bold text-center text-dark mb-4">Welcome Back 🖤</h2>
+    <p class="text-center text-gray-600 mb-6">Sign in to continue shopping</p>
+
+    <div id="errorBox" class="hidden bg-red-100 text-red-600 p-2 rounded mb-3 text-sm"></div>
+
+    <!-- EMAIL -->
+    <label class="block mb-3">
+      <span class="text-sm font-semibold">Email</span>
+      <input type="email" id="email" class="w-full mt-1 px-3 py-2 border rounded focus:ring-2 focus:ring-brand" placeholder="Enter email" />
+    </label>
+
+    <!-- PASSWORD -->
+    <label class="block mb-3">
+      <span class="text-sm font-semibold">Password</span>
+      <div class="flex items-center mt-1 border rounded px-3">
+        <input type="password" id="password" class="w-full py-2 focus:outline-none" placeholder="Enter password">
+        <button id="showPass" class="text-sm text-gray-600">Show</button>
+      </div>
+    </label>
+
+    <!-- SIGN IN BUTTON -->
+    <button id="signinBtn" class="w-full py-2 mt-2 bg-brand text-white font-semibold rounded-full hover:bg-accent transition">
+      Sign In
+    </button>
+
+    <!-- LOADING -->
+    <div id="loading" class="hidden text-center mt-3 text-brand font-semibold">Signing in...</div>
+
+    <p class="text-center text-sm mt-4">
+      Don't have an account?
+      <a href="signup.html" class="text-brand font-semibold">Create one</a>
+    </p>
+
+  </div>
+
+  <!-- Firebase Auth -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDsrL5UHWeFtQAX5XCI1hX7As91PWz59Cs",
+      authDomain: "black-1108.firebaseapp.com",
+      projectId: "black-1108",
+      storageBucket: "black-1108.firebasestorage.app",
+      messagingSenderId: "639439190327",
+      appId: "1:639439190327:web:b08b640aba7e8f7d76c2b2",
+      measurementId: "G-6T8NZV9YB9"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    const signinBtn = document.getElementById("signinBtn");
+    const emailEl = document.getElementById("email");
+    const passEl = document.getElementById("password");
+    const errorBox = document.getElementById("errorBox");
+    const loading = document.getElementById("loading");
+
+    signinBtn.addEventListener("click", async () => {
+      const email = emailEl.value.trim();
+      const password = passEl.value.trim();
+
+      if (!email || !password) {
+        showError("Both email and password are required.");
+        return;
+      }
+
+      loading.classList.remove("hidden");
+      signinBtn.disabled = true;
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        window.location.href = "index.html"; // redirect back to shop
+      } catch (err) {
+        showError(err.message);
+      }
+
+      loading.classList.add("hidden");
+      signinBtn.disabled = false;
+    });
+
+    function showError(msg) {
+      errorBox.textContent = msg;
+      errorBox.classList.remove("hidden");
+    }
+
+    // Show/Hide password
+    document.getElementById("showPass").addEventListener("click", () => {
+      if (passEl.type === "password") {
+        passEl.type = "text";
+        showPass.textContent = "Hide";
+      } else {
+        passEl.type = "password";
+        showPass.textContent = "Show";
+      }
+    });
+  </script>
+
+</body>
+</html>
