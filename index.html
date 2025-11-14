@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Black — Style That Speaks</title>
+  <link rel="icon" href="https://img.icons8.com/ios-filled/50/ff6600/t-shirt.png" />
+
+  <!-- Fonts + Tailwind CDN -->
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: "#ff6600",
+            accent: "#ff3300",
+            dark: "#111827"
+          },
+          fontFamily: { poppins: ["Poppins", "sans-serif"] },
+        },
+      },
+    };
+  </script>
+
+  <!-- EmailJS -->
+  <script src="https://cdn.emailjs.com/sdk/3.2.0/email.min.js"></script>
+
+  <style>
+    body { font-family: Poppins, sans-serif; background: #fff; color: #111827; }
+    /* header fixed and body padding so content isn't hidden */
+    header.site-header { position: fixed; top:0; left:0; width:100%; z-index:50; background:#ffffff; }
+    body { padding-top: 128px; } /* matches header total height (row1 + row2 + row3) */
+    .sidebar { transition: transform .28s ease; }
+    .sidebar-hidden { transform: translateX(100%); }
+    .sidebar-visible { transform: translateX(0); }
+    .prod-img { width:100%; height:220px; object-fit:cover; }
+    @media (max-width:640px) { .prod-img { height:160px; } }
+    .card { background: #fff; border-radius: 0.75rem; box-shadow: 0 6px 18px rgba(0,0,0,0.06);}
+    /* sidebar specific */
+    .sidebar-black { background:#000 !important; color:#fff !important; }
+    .sidebar-black a { color: #ffccaa; }
+    .accordion-btn { width:100%; text-align:left; display:flex; align-items:center; justify-content:space-between; padding:0.5rem 0; }
+    .hidden-block { display:none; }
+    .profile-options { display:none; text-align:left; margin-top:0.5rem; }
+    /* small icon spacing */
+    .icon-small { width:18px; height:18px; display:inline-block; vertical-align:middle; margin-right:8px; }
+    /* ensure overlay sits under header */
+    #overlay { z-index:45; }
+  </style>
+</head>
+<body>
+
+  <!-- HEADER: Row1 brand+cart (left) + menu (right) -->
+  <header class="site-header shadow-md">
+    <div class="flex items-center justify-between px-6 py-3 bg-white">
+      <div class="flex items-center gap-3">
+        <h1 class="text-2xl font-bold text-brand flex items-center gap-3">
+          <span>BLACK</span>
+          <!-- full cart icon + count -->
+          <span id="cartLabel" class="text-base text-gray-700 flex items-center gap-2">
+            <!-- full cart svg -->
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="icon-small">
+              <circle cx="9" cy="20" r="1.5" fill="#111827"/>
+              <circle cx="19" cy="20" r="1.5" fill="#111827"/>
+              <path d="M1 1h4l2.5 12h10.5l2-8H6" stroke="#111827" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            </svg>
+            <span id="cartCount">0</span>
+          </span>
+        </h1>
+      </div>
+
+      <div class="flex items-center">
+        <div class="mr-3"></div>
+        <!-- menu button (svg ☰ style) -->
+        <button id="menuBtn" class="text-2xl text-brand" aria-label="Open menu">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M3 6h18M3 12h18M3 18h18" stroke="#ff6600" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Row2: centered nav (kept) -->
+    <nav class="px-6 py-2 bg-white">
+      <ul class="flex justify-center gap-10 text-sm font-medium">
+        <li><a href="#" class="hover:text-brand">Home</a></li>
+        <li><a href="#categoryList" class="hover:text-brand">Category</a></li>
+        <li><a href="#products" class="hover:text-brand">Cart</a></li>
+      </ul>
+    </nav>
+
+    <!-- Row3: search (kept) -->
+    <div class="px-6 py-3 bg-white">
+      <input id="searchInput" type="text" placeholder="Search your favorite..." class="w-full px-4 py-3 rounded-full border border-gray-300 focus:outline-none focus:ring-2 focus:ring-brand" />
+    </div>
+  </header>
+
+  <!-- Random banner under search bar (kept exactly) -->
+  <section id="product-banner" class="mt-3 overflow-hidden border-b-2" style="border-color:#ff6600;">
+    <img id="randomProduct" alt="random banner" style="width:100%; height:115px; object-fit:cover;" src="https://picsum.photos/seed/banner1/1500/300" />
+  </section>
+
+  <!-- HERO (kept) -->
+  <section class="text-center py-20 bg-gray-50" style="background-image:url('https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=1500&q=80'); background-size:cover; background-position:center;">
+    <div class="bg-black bg-opacity-50 py-20 px-6 text-white">
+      <h2 class="text-4xl font-extrabold mb-4">🖤 Black — Style That Speaks</h2>
+      <p class="max-w-xl mx-auto text-lg">Discover modern, high-quality fashion for men, women, and kids. From casual essentials to statement pieces, <strong>Black</strong> brings you effortless style, comfort, and confidence — all in one place.</p>
+      <a href="#products" class="inline-block mt-6 px-8 py-3 bg-brand text-white rounded-full shadow-md hover:bg-accent transition">Shop Now</a>
+    </div>
+  </section>
+
+  <!-- Collections / Category Short list -->
+  <section id="shop" class="py-12 px-6">
+    <h3 class="text-3xl font-bold mb-6 text-brand">Our Collections</h3>
+    <div id="categoryList" class="grid grid-cols-2 md:grid-cols-4 gap-4"></div>
+  </section>
+
+  <!-- PRODUCTS GRID -->
+  <section id="products" class="py-6 px-6">
+    <h3 class="text-2xl font-semibold mb-4">Products</h3>
+
+    <!-- 2-column grid -->
+    <div id="productGrid" class="grid grid-cols-2 gap-4"></div>
+
+    <div id="loadMoreWrap" class="mt-6 text-center">
+      <button id="loadMoreBtn" class="px-6 py-2 bg-brand text-white rounded-full">Load more products</button>
+    </div>
+  </section>
+
+  <!-- PRODUCT MODAL (kept) -->
+  <div id="productModal" class="hidden fixed inset-0 items-center justify-center z-50">
+    <div class="absolute inset-0" style="background:rgba(0,0,0,0.6)"></div>
+    <div class="relative max-w-2xl w-full mx-4 bg-white rounded-xl p-6 z-10">
+      <button id="closeModal" class="absolute top-4 right-4 text-2xl">×</button>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <img id="modalMainImg" class="w-full h-72 object-cover rounded" src="" alt="product" />
+          <div id="modalThumbs" class="flex gap-2 mt-3"></div>
+        </div>
+        <div>
+          <h3 id="modalTitle" class="text-xl font-bold mb-2"></h3>
+          <p id="modalCategory" class="text-sm text-gray-600 mb-2"></p>
+          <p id="modalPrice" class="text-2xl font-extrabold text-brand mb-4"></p>
+          <p id="modalDesc" class="text-sm text-gray-700 mb-4"></p>
+          <div>
+            <button id="modalAddToCart" class="px-6 py-2 bg-brand text-white rounded-full">Add to Cart</button>
+            <a id="modalLinkBtn" class="ml-3 inline-block px-4 py-2 border rounded" href="#">Open</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SIDEBAR / MENU: right slide drawer (no payment block) -->
+  <aside id="sidebar" class="sidebar sidebar-hidden fixed top-0 right-0 h-full w-80 sidebar-black text-white z-50 p-6 overflow-y-auto border-l">
+    <button id="closeSidebar" class="text-white text-2xl absolute top-4 right-4">×</button>
+
+    <!-- Profile header (click to expand profile options) -->
+    <div class="mt-10 text-center">
+      <button id="profileToggle" class="mx-auto w-full bg-transparent border-none text-white">
+        <img id="profilePic" src="https://img.icons8.com/ios-filled/100/ffffff/user-male-circle.png" alt="profile" class="mx-auto w-20 h-20 rounded-full border-2 border-brand mb-3 object-cover"/>
+        <h3 id="profileName" class="font-semibold text-lg">Guest</h3>
+        <p id="profileMeta" class="text-sm text-gray-300">Age: — • Gender: —</p>
+      </button>
+
+      <div id="profileOptions" class="profile-options mt-3 px-2">
+        <button id="editProfileBtn" class="w-full text-left px-3 py-2 rounded hover:bg-white/10">Edit Profile</button>
+        <button id="viewOrdersBtn" class="w-full text-left px-3 py-2 rounded hover:bg-white/10">My Orders</button>
+        <button id="logoutBtn" class="w-full text-left px-3 py-2 rounded hover:bg-white/10">Logout</button>
+      </div>
+    </div>
+
+    <!-- Collapsible Contact (initially hidden) -->
+    <div class="mt-6">
+      <button class="accordion-btn text-white" id="contactToggle">
+        <span class="flex items-center">
+          <svg class="icon-small" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 8V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v1" stroke="#ff6600" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Contact
+        </span>
+        <span id="contactArrow">▼</span>
+      </button>
+      <div id="contactBlock" class="hidden-block text-sm px-2 mt-2">
+        <p><strong>Customer Service:</strong> <span class="text-white">08117854139</span></p>
+        <p><strong>Email:</strong> <a href="mailto:olaniyioluwafunke08@gmail.com" class="text-brand">olaniyioluwafunke08@gmail.com</a></p>
+        <p><strong>WhatsApp:</strong> <a href="https://wa.me/+2348117854139" target="_blank" class="text-brand">08117854139</a></p>
+      </div>
+    </div>
+
+    <!-- Collapsible About + Help & Support inside (Help hidden until clicked) -->
+    <div class="mt-6 border-t border-white/10 pt-4">
+      <button class="accordion-btn text-white" id="aboutToggle">
+        <span class="flex items-center">
+          <svg class="icon-small" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2v4M12 22v-4M4.22 4.22l2.83 2.83M17 17l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M17 7l2.83-2.83" stroke="#ff6600" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          About Black 🖤
+        </span>
+        <span id="aboutArrow">▼</span>
+      </button>
+
+      <div id="aboutBlock" class="hidden-block text-sm px-2 mt-2">
+        <p class="text-gray-300 leading-relaxed">
+          Black is your go-to online fashion store — where confidence meets class.
+          We deliver bold, modern, and comfortable styles for the whole family. Shop with ease, pay securely, and step out in confidence.
+        </p>
+
+        <!-- Help & Support toggle -->
+        <div class="mt-3">
+          <button class="accordion-btn text-white" id="helpToggle">
+            <span>Help & Support</span>
+            <span id="helpArrow">▼</span>
+          </button>
+
+          <div id="helpBlock" class="hidden-block mt-2">
+            <p class="text-gray-300 text-sm mb-2">Tell us what's going on — we'll contact you via email.</p>
+            <form id="helpForm" class="space-y-2">
+              <input type="text" id="helpName" placeholder="Your name" class="w-full px-3 py-2 rounded bg-white/5 border border-white/10 text-white" required />
+              <input type="email" id="helpEmail" placeholder="Your email" class="w-full px-3 py-2 rounded bg-white/5 border border-white/10 text-white" required />
+              <textarea id="helpMessage" rows="4" placeholder="Describe your issue..." class="w-full px-3 py-2 rounded bg-white/5 border border-white/10 text-white" required></textarea>
+              <div class="flex gap-2">
+                <button type="button" id="sendHelpBtn" class="flex-1 px-3 py-2 bg-brand text-white rounded">Send</button>
+                <button type="button" id="clearHelpBtn" class="flex-1 px-3 py-2 bg-white text-black rounded">Clear</button>
+              </div>
+              <p id="helpStatus" class="text-sm mt-1"></p>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sign in/out buttons (kept) -->
+    <div class="mt-6">
+      <button id="signinBtn" class="w-full bg-brand text-white py-2 rounded-full font-semibold mb-3">Sign In</button>
+      <button id="signoutBtn" class="w-full bg-white text-brand border border-brand py-2 rounded-full font-semibold">Sign Out</button>
+    </div>
+  </aside>
+
+  <div id="overlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-40"></div>
+
+  <!-- FOOTER -->
+  <footer class="bg-gray-900 text-white text-center py-6 mt-10">
+    <p>&copy; 2025 Black. All rights reserved.</p>
+    <p class="text-sm text-gray-400">Design by DamiTools.</p>
+  </footer>
+
+  <!-- SCRIPTS (includes deterministic generator used also by product.html) -->
+  <script type="module">
+  // ---- Firebase (auth only) ----
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDsrL5UHWeFtQAX5XCI1hX7As91PWz59Cs",
+    authDomain: "black-1108.firebaseapp.com",
+    projectId: "black-1108",
+    storageBucket: "black-1108.firebasestorage.app",
+    messagingSenderId: "639439190327",
+    appId: "1:639439190327:web:b08b640aba7e8f7d76c2b2",
+    measurementId: "G-6T8NZV9YB9"
+  };
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+
+  // Initialize EmailJS
+  // public key: Cp84jtP5v8VnUc0SQ
+  window.emailjs && emailjs.init && emailjs.init('Cp84jtP5v8VnUc0SQ');
+
+  // UI refs
+  const menuBtn = document.getElementById('menuBtn');
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('overlay');
+  const closeSidebar = document.getElementById('closeSidebar');
+  const signinBtn = document.getElementById('signinBtn');
+  const signoutBtn = document.getElementById('signoutBtn');
+  const profileNameEl = document.getElementById('profileName');
+  const profilePicEl = document.getElementById('profilePic');
+  const profileToggle = document.getElementById('profileToggle');
+  const profileOptions = document.getElementById('profileOptions');
+  const editProfileBtn = document.getElementById('editProfileBtn');
+  const viewOrdersBtn = document.getElementById('viewOrdersBtn');
+  const logoutBtn = document.getElementById('logoutBtn');
+  const productGrid = document.getElementById('productGrid');
+  const categoryList = document.getElementById('categoryList');
+  const cartCountEl = document.getElementById('cartCount');
+  const loadMoreBtn = document.getElementById('loadMoreBtn');
+  const randomProduct = document.getElementById('randomProduct');
+
+  const contactToggle = document.getElementById('contactToggle');
+  const contactBlock = document.getElementById('contactBlock');
+  const contactArrow = document.getElementById('contactArrow');
+
+  const aboutToggle = document.getElementById('aboutToggle');
+  const aboutBlock = document.getElementById('aboutBlock');
+  const aboutArrow = document.getElementById('aboutArrow');
+
+  const helpToggle = document.getElementById('helpToggle');
+  const helpBlock = document.getElementById('helpBlock');
+  const helpArrow = document.getElementById('helpArrow');
+
+  const helpForm = document.getElementById('helpForm');
+  const sendHelpBtn = document.getElementById('sendHelpBtn');
+  const clearHelpBtn = document.getElementById('clearHelpBtn');
+  const helpStatus = document.getElementById('helpStatus');
+
+  // open/close sidebar
+  function openSidebar(){ sidebar.classList.remove('sidebar-hidden'); sidebar.classList.add('sidebar-visible'); overlay.classList.remove('hidden'); }
+  function closeMenu(){ sidebar.classList.remove('sidebar-visible'); sidebar.classList.add('sidebar-hidden'); overlay.classList.add('hidden'); }
+  menuBtn.addEventListener('click', openSidebar);
+  closeSidebar.addEventListener('click', closeMenu);
+  overlay.addEventListener('click', closeMenu);
+  signinBtn.addEventListener('click', ()=> window.location.href='login.html');
+  signoutBtn.addEventListener('click', async ()=> { try { await signOut(auth); window.location.href='login.html'; } catch(e){ alert(e.message); } });
+
+  // profile toggle
+  profileToggle.addEventListener('click', ()=>{
+    if (profileOptions.style.display === 'block') { profileOptions.style.display = 'none'; } else { profileOptions.style.display = 'block'; }
+  });
+  logoutBtn.addEventListener('click', async ()=> {
+    try { await signOut(auth); window.location.href='login.html'; } catch(e){ alert(e.message); }
+  });
+
+  // contact accordion
+  contactToggle.addEventListener('click', ()=>{
+    if (contactBlock.style.display === 'block') { contactBlock.style.display = 'none'; contactArrow.textContent = '▼'; } else { contactBlock.style.display = 'block'; contactArrow.textContent = '▲'; }
+  });
+
+  // about accordion (contains help)
+  aboutToggle.addEventListener('click', ()=>{
+    if (aboutBlock.style.display === 'block') { aboutBlock.style.display = 'none'; aboutArrow.textContent = '▼'; } else { aboutBlock.style.display = 'block'; aboutArrow.textContent = '▲'; }
+  });
+
+  // help accordion (inside about)
+  helpToggle.addEventListener('click', ()=>{
+    if (helpBlock.style.display === 'block') { helpBlock.style.display = 'none'; helpArrow.textContent = '▼'; } else { helpBlock.style.display = 'block'; helpArrow.textContent = '▲'; }
+  });
+
+  // help form send via EmailJS
+  sendHelpBtn.addEventListener('click', ()=>{
+    const name = document.getElementById('helpName').value.trim();
+    const email = document.getElementById('helpEmail').value.trim();
+    const message = document.getElementById('helpMessage').value.trim();
+    if (!name || !email || !message) { helpStatus.textContent = 'Please fill out all fields.'; helpStatus.style.color = '#ffcc00'; return; }
+    helpStatus.textContent = 'Sending...';
+    helpStatus.style.color = '#fff';
+    const templateParams = {
+      from_name: name,
+      reply_to: email,
+      message: message
+    };
+    // service: service_rg6m82u, template: template_n9i0263
+    emailjs.send('service_rg6m82u','template_n9i0263', templateParams)
+      .then((res) => {
+        helpStatus.textContent = 'Message sent — we will contact you soon.';
+        helpStatus.style.color = '#7fff7f';
+        helpForm.reset();
+      }, (err) => {
+        helpStatus.textContent = 'Failed to send. Try again later.';
+        helpStatus.style.color = '#ff7f7f';
+        console.error('EmailJS error', err);
+      });
+  });
+
+  clearHelpBtn.addEventListener('click', ()=> {
+    helpForm.reset();
+    helpStatus.textContent = '';
+  });
+
+  // categories (must match generator)
+  const categories = [
+    "Men wears","Women wears","Kids wears","Wristwatch","Shoes","Women Heels",
+    "Chain","Ring","Boxers","Underwears","Bet","Round neck","Jugers","Bedsheets",
+    "Pilo","Wall Cutting","Accessories","Hats","Bags","Socks","Jackets"
+  ];
+
+  // fill category grid (top)
+  categories.forEach(cat => {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'flex justify-center';
+    const btn = document.createElement('button');
+    btn.className = 'px-3 py-2 rounded bg-white/80 border hover:border-brand text-sm';
+    btn.textContent = cat;
+    btn.onclick = ()=> filterByCategory(cat);
+    wrapper.appendChild(btn);
+    categoryList.appendChild(wrapper);
+  });
+
+  // random banner rotation (kept)
+  const bannerSeeds = ['banner1','banner2','banner3','banner4'];
+  function changeBanner(){ randomProduct.src = `https://picsum.photos/seed/${bannerSeeds[Math.floor(Math.random()*bannerSeeds.length)]}/1500/300`; }
+  changeBanner();
+  setInterval(changeBanner, 6000);
+
+  // more realistic product generator (200 products)
+  const sampleAdjectives = ["Classic","Modern","Stylish","Comfort","Premium","Urban","Luxury","Casual","Elite","Cozy","Vintage","Sport","Slim","Relaxed","Smart"];
+  const sampleItems = ["Polo Shirt","Summer Dress","Sneakers","Heels","Chain Necklace","Gold Ring","Boxer Briefs","Underwear Set","Round Neck Tee","Jumper","Bedsheet Set","Pilot Cap","Wall Cutter","Leather Jacket","Socks Pack","Hoodie","Cargo Pants","Denim Jacket","Wallet","Handbag"];
+  function rand(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+
+  const products = [];
+  for(let i=1;i<=200;i++){
+    const cat = categories[i % categories.length];
+    const name = `${sampleAdjectives[i % sampleAdjectives.length]} ${sampleItems[i % sampleItems.length]} ${i}`;
+    // realistic price range by item type (approx)
+    let minP = 7500, maxP = 45000;
+    if (name.toLowerCase().includes('socks') || name.toLowerCase().includes('boxer') || name.toLowerCase().includes('underwear')) { minP = 2500; maxP = 9000; }
+    if (name.toLowerCase().includes('rings') || name.toLowerCase().includes('chain') || name.toLowerCase().includes('handbag')) { minP = 7000; maxP = 55000; }
+    const priceVal = rand(minP, maxP);
+    const price = '#' + priceVal.toLocaleString();
+    // use picsum seeds for variety (realistic placeholders)
+    const img = `https://picsum.photos/seed/prod${i}/600/600`;
+    const imgs = [
+      `https://picsum.photos/seed/prod${i}a/800/800`,
+      `https://picsum.photos/seed/prod${i}b/800/800`,
+      `https://picsum.photos/seed/prod${i}c/800/800`
+    ];
+    products.push({ id:i, name, category:cat, priceVal, price, img, imgs, description: `High-quality ${cat} — ${name}. Perfect for everyday wear and special occasions.` });
+  }
+
+  // render function (paginated)
+  let perPage = 24, currentMax = perPage;
+  function renderProducts(limit=currentMax){
+    productGrid.innerHTML = '';
+    const list = products.slice(0, limit);
+    list.forEach(p=>{
+      const div = document.createElement('div'); div.className='card overflow-hidden';
+      div.innerHTML = `
+        <img src="${p.img}" alt="${p.name}" class="prod-img" />
+        <div class="p-3">
+          <h4 class="font-semibold text-sm mb-1">${p.name}</h4>
+          <p class="text-xs text-gray-600 mb-2">${p.category}</p>
+          <p class="text-lg font-bold text-brand">${p.price}</p>
+          <div class="mt-3 flex gap-2">
+            <a href="product.html?id=${p.id}" class="flex-1 px-3 py-2 border rounded text-sm text-center">Open</a>
+            <button data-id="${p.id}" class="add-to-cart flex-1 px-3 py-2 bg-brand text-white rounded text-sm">Add to Cart</button>
+          </div>
+        </div>
+      `;
+      productGrid.appendChild(div);
+    });
+    attachListeners();
+    loadMoreBtn.style.display = (limit >= products.length) ? 'none' : 'inline-block';
+  }
+  renderProducts();
+
+  loadMoreBtn.addEventListener('click', ()=> { currentMax += perPage; renderProducts(); });
+
+  function filterByCategory(cat){
+    productGrid.innerHTML = '';
+    const filtered = products.filter(p => p.category === cat);
+    filtered.forEach(p=>{
+      const div = document.createElement('div'); div.className='card overflow-hidden';
+      div.innerHTML = `
+        <img src="${p.img}" alt="${p.name}" class="prod-img" />
+        <div class="p-3">
+          <h4 class="font-semibold text-sm mb-1">${p.name}</h4>
+          <p class="text-xs text-gray-600 mb-2">${p.category}</p>
+          <p class="text-lg font-bold text-brand">${p.price}</p>
+          <div class="mt-3 flex gap-2">
+            <a href="product.html?id=${p.id}" class="flex-1 px-3 py-2 border rounded text-sm text-center">Open</a>
+            <button data-id="${p.id}" class="add-to-cart flex-1 px-3 py-2 bg-brand text-white rounded text-sm">Add to Cart</button>
+          </div>
+        </div>
+      `;
+      productGrid.appendChild(div);
+    });
+    attachListeners();
+  }
+
+  // Add-to-cart behavior requires login
+  let cartCount = 0;
+  function attachListeners(){
+    document.querySelectorAll('.add-to-cart').forEach(btn=>{
+      btn.onclick = async () => {
+        const id = Number(btn.dataset.id);
+        const user = auth.currentUser;
+        if (!user) { window.location.href = 'login.html'; return; }
+        cartCount++; cartCountEl.textContent = cartCount;
+        // optionally save cart to Firestore
+      };
+    });
+  }
+
+  // basic search (enter)
+  const searchInput = document.getElementById('searchInput');
+  searchInput.addEventListener('keydown', (e)=>{
+    if (e.key === 'Enter'){
+      const q = searchInput.value.trim().toLowerCase();
+      if (!q) { renderProducts(); return; }
+      const filtered = products.filter(p => p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q));
+      productGrid.innerHTML = '';
+      filtered.forEach(p=>{
+        const div = document.createElement('div'); div.className='card overflow-hidden';
+        div.innerHTML = `
+          <img src="${p.img}" alt="${p.name}" class="prod-img" />
+          <div class="p-3">
+            <h4 class="font-semibold text-sm mb-1">${p.name}</h4>
+            <p class="text-xs text-gray-600 mb-2">${p.category}</p>
+            <p class="text-lg font-bold text-brand">${p.price}</p>
+            <div class="mt-3 flex gap-2">
+              <a href="product.html?id=${p.id}" class="flex-1 px-3 py-2 border rounded text-sm text-center">Open</a>
+              <button data-id="${p.id}" class="add-to-cart flex-1 px-3 py-2 bg-brand text-white rounded text-sm">Add to Cart</button>
+            </div>
+          </div>
+        `;
+        productGrid.appendChild(div);
+      });
+      attachListeners();
+    }
+  });
+
+  // Deterministic product detail modal kept for quick preview (optional)
+  const modal = document.getElementById('productModal');
+  const closeModal = document.getElementById('closeModal');
+  closeModal?.addEventListener('click', ()=>{ modal.classList.add('hidden'); });
+
+  // Auth state updates profile area & sign buttons
+  onAuthStateChanged(auth, user => {
+    if (user) {
+      const name = user.displayName || (user.email ? user.email.split('@')[0] : 'User');
+      profileNameEl.textContent = name.split(' ')[0];
+      profilePicEl.src = user.photoURL || `https://picsum.photos/seed/avatar${user.uid}/200/200`;
+      // show profile options when logged in
+      profileOptions.style.display = 'block';
+      signoutBtn.style.display = 'inline-block';
+      signinBtn.style.display = 'none';
+    } else {
+      profileNameEl.textContent = 'Guest';
+      profilePicEl.src = 'https://img.icons8.com/ios-filled/100/ffffff/user-male-circle.png';
+      profileOptions.style.display = 'none';
+      signoutBtn.style.display = 'none';
+      signinBtn.style.display = 'inline-block';
+    }
+  });
+
+  // final attach initial listeners
+  attachListeners();
+  </script>
+
+</body>
+</html>
