@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Notifications — Black</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: { brand: "#ff6600", dark: "#0b0b0b" },
+          fontFamily: { poppins: ["Poppins", "sans-serif"] },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    body { background: #0b0b0b; font-family: Poppins, sans-serif; }
+    /* make notifications list visually match the rest of your site */
+    .notif-card { background: #111; border: 1px solid #222; padding: 1rem; border-radius: 0.75rem; box-shadow: 0 6px 18px rgba(0,0,0,0.45); }
+    .notif-title { color: #ff6600; font-weight: 600; }
+    .notif-body { color: #d1d1d1; margin-top: 0.4rem; }
+    .notif-time { color: #8b8b8b; font-size: 12px; margin-top: .5rem; }
+  </style>
+</head>
+
+<body class="min-h-screen text-white">
+
+  <!-- HEADER -->
+  <header class="p-5 bg-dark shadow-lg flex justify-between items-center border-b border-gray-800">
+    <h1 class="text-2xl font-bold text-brand">Notifications</h1>
+    <a href="profile.html" class="bg-brand text-black px-4 py-2 rounded-lg text-sm font-semibold">Back</a>
+  </header>
+
+  <!-- CONTENT -->
+  <div class="p-5">
+
+    <!-- Buttons -->
+    <div class="flex flex-col sm:flex-row justify-between gap-3 mb-4">
+      <div class="flex gap-3">
+        <button id="enablePushBtn" class="bg-brand px-4 py-2 rounded-lg font-semibold text-black hover:bg-orange-500 transition">
+          Enable Push (WhatsApp / FCM)
+        </button>
+
+        <button id="clearAllBtn" class="bg-red-600 px-4 py-2 rounded-lg font-semibold hover:bg-red-700 transition">
+          Clear All
+        </button>
+      </div>
+
+      <div class="flex gap-3">
+        <button id="refreshBtn" class="bg-gray-800 px-4 py-2 rounded-lg font-semibold hover:bg-gray-700 transition">
+          Refresh
+        </button>
+        <button id="openWhatsApp" class="bg-green-600 px-4 py-2 rounded-lg font-semibold hover:bg-green-700 transition">
+          Live Chat (WhatsApp)
+        </button>
+      </div>
+    </div>
+
+    <!-- Notification List -->
+    <div id="notifList" class="space-y-4"></div>
+
+    <!-- Empty State -->
+    <div id="emptyState" class="hidden text-center text-gray-400 mt-10">
+      <img src="https://img.icons8.com/fluency-systems-filled/96/444444/appointment-reminders.png" class="mx-auto opacity-40" />
+      <p class="mt-4 text-lg">No notifications yet</p>
+    </div>
+
+  </div>
+
+  <!-- FIREBASE + PUSH (uses firebase v10 messaging sw + modular imports) -->
+  <script type="module">
+    // ---- Use Firebase v10 for messaging / service worker compatibility ----
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-auth.js";
+    import { getFirestore, collection, query, where, orderBy, onSnapshot, deleteDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+    import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging.js";
+
+    // --- YOUR FIREBASE CONFIG (same as your project) ---
+    const firebaseConfig = {
+      apiKey: "AIzaSyDsrL5UHWeFtQAX5XCI1hX7As91PWz59Cs",
+      authDomain: "black-1108.firebaseapp.com",
+      projectId: "black-1108",
+      storageBucket: "black-1108.firebasestorage.app",
+      messagingSenderId: "639439190327",
+      appId: "1:639439190327:web:b08b640aba7e8f7d76c2b2"
+    };
+
+    const VAPID_KEY = "BBUxAh8_3Ue6tElWsBtAuBGbKDGShBY1gW6r59vpVCFSPmz8xHOZ0QLQ_KC4HvaSBwux7JkuM-zYxlwuYshLlJw";
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+    const messaging = getMessaging(app);
+
+    // UI refs
+    const notifList = document.getElementById("notifList");
+    const emptyState = document.getElementById("emptyState");
+    const clearAllBtn = document.getElementById("clearAllBtn");
+    const refreshBtn = document.getElementById("refreshBtn");
+    const enablePushBtn = document.getElementById("enablePushBtn");
+    const openWhatsApp = document.getElementById("openWhatsApp");
+
+    let currentUser = null;
+    let unsubRealtime = null;
+
+    // open WhatsApp (your provided number)
+    openWhatsApp.addEventListener('click', () => {
+      // Replace country code if required. You gave 07054700008 → assume Nigeria +234:
+      window.open('https://wa.me/2347054700008', '_blank');
+    });
+
+    // AUTH PROTECTION + load notifications
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        window.location.href = "login.html";
+        return;
+      }
+      currentUser = user;
+      subscribeRealtime();
+    });
+
+    // request permission & get token (and register service worker)
+    enablePushBtn.addEventListener('click', async () => {
+      try {
+        // Register service worker (must be in root)
+        const swRegistration = await navigator.serviceWorker.register('/firebase-messaging-sw.js');
+        console.log('Service Worker registered:', swRegistration);
+
+        const permission = await Notification.requestPermission();
+        if (permission !== 'granted') {
+          alert('Please allow notifications to receive push messages.');
+          return;
+        }
+
+        const token = await getToken(messaging, { vapidKey: VAPID_KEY, serviceWorkerRegistration: swRegistration });
+        console.log('FCM token:', token);
+
+        // Save token to user's Firestore doc (merge)
+        await setDoc(doc(db, 'users', currentUser.uid), { fcmToken: token }, { merge: true });
+
+        alert('Push enabled — you will receive notifications.');
+      } catch (err) {
+        console.error('Push permission / token error', err);
+        alert('Failed to enable push: ' + (err.message || err));
+      }
+    });
+
+    // Foreground messages: show small in-page toast + browser notification
+    onMessage(messaging, (payload) => {
+      console.log('Foreground message', payload);
+      const n = payload.notification || {};
+      // Browser toast / native notification
+      if (Notification.permission === 'granted') {
+        new Notification(n.title || 'Notification', { body: n.body || '', icon: n.icon || '' });
+      }
+      // Also insert into list (in-memory)
+      addNotificationToUI({
+        id: 'fg-' + Date.now(),
+        title: n.title || 'Notification',
+        message: n.body || '',
+        timestamp: new Date()
+      });
+    });
+
+    // subscribe to Firestore notifications collection for this user
+    function subscribeRealtime() {
+      if (!currentUser) return;
+      // detach previous
+      if (unsubRealtime) unsubRealtime();
+      const q = query(collection(db, 'notifications'), where('userId', '==', currentUser.uid), orderBy('timestamp', 'desc'));
+      unsubRealtime = onSnapshot(q, snapshot => {
+        notifList.innerHTML = '';
+        if (snapshot.empty) {
+          emptyState.classList.remove('hidden');
+          return;
+        }
+        emptyState.classList.add('hidden');
+        snapshot.forEach(docu => {
+          const data = docu.data();
+          // convert Firestore timestamp to Date
+          const time = data.timestamp && data.timestamp.toDate ? data.timestamp.toDate() : (data.timestamp || new Date());
+          addNotificationToUI({ id: docu.id, title: data.title, message: data.message, timestamp: time });
+        });
+      });
+    }
+
+    // insert one notification into UI (avoid duplicates)
+    const displayed = new Set();
+    function addNotificationToUI({ id, title, message, timestamp }) {
+      if (displayed.has(id)) return;
+      displayed.add(id);
+      const timeStr = (timestamp instanceof Date) ? timestamp.toLocaleString() : timestamp;
+      const wrap = document.createElement('div');
+      wrap.className = 'notif-card relative';
+      wrap.innerHTML = `
+        <div>
+          <div class="flex items-start justify-between">
+            <div>
+              <div class="notif-title">${escapeHtml(title || 'Notification')}</div>
+              <div class="notif-body">${escapeHtml(message || '')}</div>
+              <div class="notif-time">${escapeHtml(timeStr)}</div>
+            </div>
+            <div class="ml-3">
+              <button data-id="${id}" class="deleteBtn p-2 rounded hover:bg-white/5 text-red-400">✕</button>
+            </div>
+          </div>
+        </div>
+      `;
+      notifList.prepend(wrap);
+
+      // attach delete handler
+      wrap.querySelector('.deleteBtn').addEventListener('click', async (e) => {
+        const nid = e.currentTarget.dataset.id;
+        try { await deleteDoc(doc(db, 'notifications', nid)); } catch(err) { console.error(err); }
+      });
+    }
+
+    // util: escape HTML
+    function escapeHtml(s) {
+      if (!s) return '';
+      return s.replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;');
+    }
+
+    // CLEAR ALL (delete notifications docs for user)
+    clearAllBtn.addEventListener('click', async () => {
+      if (!confirm('Delete all notifications?')) return;
+      // Query once and delete each
+      const qSnap = await getDocs(query(collection(db, 'notifications'), where('userId', '==', currentUser.uid)));
+      const batchDeletes = [];
+      qSnap.forEach(docu => batchDeletes.push(deleteDoc(doc(db, 'notifications', docu.id))));
+      await Promise.all(batchDeletes);
+    });
+
+    // REFRESH (re-subscribes)
+    refreshBtn.addEventListener('click', () => { subscribeRealtime(); });
+
+    // Some imports used above that couldn't be imported at top-level (getDocs, deleteDoc, doc already imported)
+    // (they're available via earlier imports)
+
+    // lazy-load helper imports used in clearAllBtn handler (already imported above in the grouped import)
+    import { getDocs, deleteDoc as _deleteDoc, doc as _doc } from "https://www.gstatic.com/firebasejs/10.14.1/firebase-firestore.js";
+    // We already used deleteDoc and doc name; the above import ensures runtime availability with the v10 import step.
+    // (Actual functions referenced are the ones imported earlier in the grouped import.)
+
+    // NOTE: if getDocs isn't recognized in your environment, replace clearAll implementation with Cloud Function or batch list + deletes.
+
+  </script>
+</body>
+</html>
