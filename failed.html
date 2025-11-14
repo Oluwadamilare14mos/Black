@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Failed - Junior Store</title>
+  <link rel="stylesheet" href="styles.css">
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f8f8f8;
+      margin: 0;
+      padding: 0;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: 70px auto;
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      text-align: center;
+      box-shadow: 0 0 10px rgba(0,0,0,0.15);
+      animation: fadeIn 0.4s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .icon {
+      font-size: 55px;
+      color: #d9534f;
+      margin-bottom: 15px;
+    }
+
+    h1 {
+      color: #d9534f;
+      margin-bottom: 10px;
+    }
+
+    p {
+      font-size: 16px;
+      line-height: 1.5;
+      color: #555;
+    }
+
+    .btn {
+      margin-top: 25px;
+      display: inline-block;
+      padding: 12px 25px;
+      font-size: 16px;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: 0.3s;
+    }
+
+    .retry {
+      background: #007bff;
+      color: white;
+    }
+
+    .retry:hover {
+      background: #0056b3;
+    }
+
+    .home {
+      background: #555;
+      color: white;
+      margin-left: 10px;
+    }
+
+    .home:hover {
+      background: #333;
+    }
+
+    footer {
+      text-align: center;
+      margin-top: 40px;
+      font-size: 14px;
+      color: #777;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <div class="icon">❌</div>
+    <h1>Payment Failed</h1>
+    <p>
+      Unfortunately, your payment could not be processed.<br>
+      This may be due to network issues, insufficient balance, or incorrect details.
+    </p>
+
+    <p>
+      Please try again or choose another payment option.
+    </p>
+
+    <a href="checkout.html" class="btn retry">Retry Payment</a>
+    <a href="index.html" class="btn home">Return Home</a>
+  </div>
+
+  <footer>
+    © 2025 Junior Store — All Rights Reserved
+  </footer>
+
+</body>
+</html>
