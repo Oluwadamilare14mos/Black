@@ -544,6 +544,16 @@ signoutBtn.addEventListener('click', async () => {
 
   // final attach initial listeners
   attachListeners();
+
+  // --- AUTH PROTECTION FOR INDEX PAGE ---
+onAuthStateChanged(auth, user => {
+  if (!user) {
+    // Prevent infinite redirect loop when already on login page
+    if (!window.location.pathname.includes('login.html')) {
+      window.location.href = 'login.html';
+    }
+  }
+});
   </script>
 
 </body>
