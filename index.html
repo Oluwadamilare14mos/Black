@@ -523,36 +523,31 @@ signoutBtn.addEventListener('click', async () => {
   const closeModal = document.getElementById('closeModal');
   closeModal?.addEventListener('click', ()=>{ modal.classList.add('hidden'); });
 
-  // Auth state updates profile area & sign buttons
-  onAuthStateChanged(auth, user => {
-    if (user) {
-      const name = user.displayName || (user.email ? user.email.split('@')[0] : 'User');
-      profileNameEl.textContent = name.split(' ')[0];
-      profilePicEl.src = user.photoURL || `https://picsum.photos/seed/avatar${user.uid}/200/200`;
-      // show profile options when logged in
-      profileOptions.style.display = 'block';
-      signoutBtn.style.display = 'inline-block';
-      signinBtn.style.display = 'none';
-    } else {
-      profileNameEl.textContent = 'Guest';
-      profilePicEl.src = 'https://img.icons8.com/ios-filled/100/ffffff/user-male-circle.png';
-      profileOptions.style.display = 'none';
-      signoutBtn.style.display = 'none';
-      signinBtn.style.display = 'inline-block';
-    }
-  });
-
-  // final attach initial listeners
-  attachListeners();
-
-  // --- AUTH PROTECTION FOR INDEX PAGE ---
+  // --- ONE COMBINED AUTH STATE HANDLER ---
 onAuthStateChanged(auth, user => {
+
+  // AUTH PROTECTION
   if (!user) {
-    // Prevent infinite redirect loop when already on login page
     if (!window.location.pathname.includes('login.html')) {
       window.location.href = 'login.html';
     }
+    // Guest UI
+    profileNameEl.textContent = 'Guest';
+    profilePicEl.src = 'https://img.icons8.com/ios-filled/100/ffffff/user-male-circle.png';
+    profileOptions.style.display = 'none';
+    signoutBtn.style.display = 'none';
+    signinBtn.style.display = 'inline-block';
+    return;
   }
+
+  // LOGGED IN UI
+  const name = user.displayName || (user.email ? user.email.split('@')[0] : 'User');
+  profileNameEl.textContent = name.split(' ')[0];
+  profilePicEl.src = user.photoURL || `https://picsum.photos/seed/avatar${user.uid}/200/200`;
+
+  profileOptions.style.display = 'block';
+  signoutBtn.style.display = 'inline-block';
+  signinBtn.style.display = 'none';
 });
   </script>
 
