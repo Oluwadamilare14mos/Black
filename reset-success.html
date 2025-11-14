@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Password Reset — Success</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: "#ff6600",
+            dark: "#0b0b0b",
+          },
+          fontFamily: { poppins: ["Poppins", "sans-serif"] },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    body {
+      background: #0b0b0b;
+      font-family: Poppins, sans-serif;
+    }
+  </style>
+</head>
+
+<body class="min-h-screen flex items-center justify-center text-white p-6">
+
+  <div class="w-full max-w-md bg-[#111] p-8 rounded-2xl shadow-xl border border-gray-800 text-center">
+
+    <div class="text-brand text-6xl mb-4">✔</div>
+
+    <h1 class="text-2xl font-bold mb-2">Check Your Email</h1>
+
+    <p class="text-gray-400 mb-6">
+      If an account exists with the email you entered,  
+      you will receive a password reset link shortly.
+    </p>
+
+    <a 
+      href="login.html"
+      class="w-full inline-block bg-brand text-black p-3 rounded-xl font-semibold hover:bg-orange-500 transition"
+    >
+      Back to Login
+    </a>
+  </div>
+
+</body>
+</html>
