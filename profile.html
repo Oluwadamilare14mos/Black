@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Profile — Black</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: "#ff6600",
+            accent: "#ff3300",
+            dark: "#111827"
+          },
+          fontFamily: { poppins: ["Poppins", "sans-serif"] },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    body { font-family: Poppins, sans-serif; background:#000; color:#fff; }
+    .card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.04); border-radius: 12px; }
+    .muted { color: rgba(255,255,255,0.6); }
+    input, select, textarea { background: rgba(255,255,255,0.02); color:#fff; border: 1px solid rgba(255,255,255,0.06); }
+  </style>
+</head>
+<body class="min-h-screen flex items-start justify-center py-12 px-4">
+
+  <div class="w-full max-w-3xl space-y-6">
+
+    <!-- header -->
+    <header class="flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <img src="https://img.icons8.com/ios-filled/50/ff6600/t-shirt.png" alt="logo" class="w-10 h-10" />
+        <div>
+          <h1 class="text-2xl font-bold">Profile</h1>
+          <p class="muted text-sm">Manage your account & settings</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <a href="index.html" class="px-4 py-2 rounded-full border border-white/6 muted hover:bg-white/5">Back to Shop</a>
+        <button id="signOutBtn" class="px-4 py-2 rounded-full bg-brand text-black font-semibold">Sign Out</button>
+      </div>
+    </header>
+
+    <!-- profile card -->
+    <section class="card p-6 grid grid-cols-1 md:grid-cols-3 gap-6 items-start">
+      <!-- left: avatar -->
+      <div class="flex flex-col items-center gap-4 md:items-start">
+        <div class="w-36 h-36 rounded-full overflow-hidden border-2 border-brand">
+          <img id="avatarPreview" src="https://img.icons8.com/ios-filled/100/ffffff/user-male-circle.png" alt="avatar" class="w-full h-full object-cover" />
+        </div>
+
+        <div class="w-full">
+          <label class="block text-sm text-white/80 mb-1">Upload new photo</label>
+          <input id="photoInput" type="file" accept="image/*" class="w-full text-sm" />
+          <p class="text-xs muted mt-2">Images uploaded are sent to ImgBB and saved to your profile.</p>
+        </div>
+
+        <div class="mt-3 w-full">
+          <button id="uploadPhotoBtn" class="w-full px-4 py-2 bg-brand text-black rounded-full font-semibold">Upload & Save</button>
+        </div>
+      </div>
+
+      <!-- middle: basic info edit -->
+      <div class="md:col-span-2">
+        <h2 class="text-lg font-bold mb-3">Account details</h2>
+
+        <form id="profileForm" class="space-y-4">
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label class="block text-sm muted mb-1">First name</label>
+              <input id="firstName" type="text" required class="w-full px-3 py-2 rounded" />
+            </div>
+
+            <div>
+              <label class="block text-sm muted mb-1">Last name</label>
+              <input id="lastName" type="text" class="w-full px-3 py-2 rounded" />
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label class="block text-sm muted mb-1">Age</label>
+              <input id="age" type="number" min="1" class="w-full px-3 py-2 rounded" />
+            </div>
+
+            <div>
+              <label class="block text-sm muted mb-1">Gender</label>
+              <select id="gender" class="w-full px-3 py-2 rounded">
+                <option value="">Select</option>
+                <option>Male</option>
+                <option>Female</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-sm muted mb-1">Username</label>
+              <input id="username" type="text" placeholder="shown in sidebar" class="w-full px-3 py-2 rounded" />
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-sm muted mb-1">Email (readonly)</label>
+            <input id="email" type="email" readonly class="w-full px-3 py-2 rounded muted" />
+          </div>
+
+          <div class="flex gap-3 items-center pt-2">
+            <button id="saveProfileBtn" type="submit" class="px-5 py-2 bg-brand text-black rounded-full font-semibold">Save changes</button>
+            <button id="resetPassBtn" type="button" class="px-5 py-2 border rounded-full muted hover:bg-white/5">Reset password</button>
+            <span id="statusMsg" class="muted text-sm"></span>
+          </div>
+        </form>
+
+        <!-- simple account stats -->
+        <div class="mt-6 grid grid-cols-2 gap-4">
+          <div class="p-3 border rounded">
+            <div class="text-sm muted">Orders</div>
+            <div class="text-xl font-bold">—</div>
+          </div>
+          <div class="p-3 border rounded">
+            <div class="text-sm muted">Wishlist</div>
+            <div class="text-xl font-bold">—</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- small footer note -->
+    <p class="muted text-sm text-center">Profile changes update your sidebar name & photo across the site.</p>
+  </div>
+
+  <!-- Firebase + logic -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { getAuth, onAuthStateChanged, signOut, updateProfile, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+
+    // ---------- YOUR FIREBASE CONFIG ----------
+    const firebaseConfig = {
+      apiKey: "AIzaSyDsrL5UHWeFtQAX5XCI1hX7As91PWz59Cs",
+      authDomain: "black-1108.firebaseapp.com",
+      projectId: "black-1108",
+      storageBucket: "black-1108.firebasestorage.app",
+      messagingSenderId: "639439190327",
+      appId: "1:639439190327:web:b08b640aba7e8f7d76c2b2",
+      measurementId: "G-6T8NZV9YB9"
+    };
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // ImgBB key (you provided earlier)
+    const IMGBB_KEY = "43cbd9a554a2ba4dad8ca1eca995df94";
+
+    // UI refs
+    const avatarPreview = document.getElementById('avatarPreview');
+    const photoInput = document.getElementById('photoInput');
+    const uploadPhotoBtn = document.getElementById('uploadPhotoBtn');
+
+    const firstNameEl = document.getElementById('firstName');
+    const lastNameEl = document.getElementById('lastName');
+    const ageEl = document.getElementById('age');
+    const genderEl = document.getElementById('gender');
+    const emailEl = document.getElementById('email');
+    const usernameEl = document.getElementById('username');
+
+    const profileForm = document.getElementById('profileForm');
+    const saveProfileBtn = document.getElementById('saveProfileBtn');
+    const resetPassBtn = document.getElementById('resetPassBtn');
+    const statusMsg = document.getElementById('statusMsg');
+    const signOutBtn = document.getElementById('signOutBtn');
+
+    let currentUser = null;
+    let currentUserDocRef = null;
+
+    // Auth protection + load profile
+    onAuthStateChanged(auth, async user => {
+      if (!user) {
+        // If not logged in, send to login page.
+        if (!window.location.pathname.includes('login.html')) {
+          window.location.href = 'login.html';
+        }
+        return;
+      }
+
+      // user is logged in
+      currentUser = user;
+      currentUserDocRef = doc(db, 'users', user.uid);
+
+      // show email and basic UI
+      emailEl.value = user.email || '';
+      avatarPreview.src = user.photoURL || `https://picsum.photos/seed/avatar${user.uid}/200/200`;
+      firstNameEl.value = (user.displayName && user.displayName.split(' ')[0]) || '';
+      usernameEl.value = (user.displayName) ? user.displayName.split(' ')[0] : '';
+
+      // load Firestore extra fields if present
+      try {
+        const snap = await getDoc(currentUserDocRef);
+        if (snap.exists()) {
+          const data = snap.data();
+          lastNameEl.value = data.lastName || '';
+          ageEl.value = data.age || '';
+          genderEl.value = data.gender || '';
+          // prefer firestore photo if available
+          if (data.photoURL) avatarPreview.src = data.photoURL;
+        }
+      } catch (err) {
+        console.error('Failed to load user data', err);
+      }
+    });
+
+    // Sign out
+    signOutBtn.addEventListener('click', async () => {
+      try {
+        await signOut(auth);
+        window.location.href = 'login.html';
+      } catch (err) {
+        alert(err.message);
+      }
+    });
+
+    // upload photo -> ImgBB then update user profile & Firestore
+    uploadPhotoBtn.addEventListener('click', async () => {
+      const file = photoInput.files[0];
+      if (!file) {
+        statusMsg.textContent = 'Choose an image first.';
+        return;
+      }
+      statusMsg.textContent = 'Uploading image...';
+      try {
+        const fd = new FormData();
+        fd.append('image', file);
+        const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, {
+          method: 'POST',
+          body: fd
+        });
+        const json = await res.json();
+        if (!json.success) throw new Error('ImgBB upload failed');
+        const url = json.data.url;
+
+        // update Firebase profile and Firestore
+        await updateProfile(currentUser, { photoURL: url });
+        await setDoc(doc(db, 'users', currentUser.uid), { photoURL: url }, { merge: true });
+
+        avatarPreview.src = url;
+        statusMsg.textContent = 'Photo uploaded & saved.';
+      } catch (err) {
+        console.error(err);
+        statusMsg.textContent = 'Upload failed. Try again.';
+      }
+      setTimeout(()=> statusMsg.textContent = '', 3000);
+    });
+
+    // Save profile form (displayName & Firestore fields)
+    profileForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!currentUser) return;
+      const first = firstNameEl.value.trim();
+      const last = lastNameEl.value.trim();
+      const age = ageEl.value ? Number(ageEl.value) : null;
+      const gender = genderEl.value || '';
+      const username = usernameEl.value.trim();
+
+      if (!first) {
+        statusMsg.textContent = 'First name is required.';
+        return;
+      }
+
+      statusMsg.textContent = 'Saving...';
+      try {
+        // update displayName on auth (we'll store "first last" if last exists)
+        const displayName = last ? `${first} ${last}` : first;
+        await updateProfile(currentUser, { displayName });
+
+        // save user document
+        await setDoc(doc(db, 'users', currentUser.uid), {
+          firstName: first,
+          lastName: last || '',
+          age: age || '',
+          gender: gender || '',
+          username: username || '',
+          email: currentUser.email || '',
+          updatedAt: new Date().toISOString()
+        }, { merge: true });
+
+        statusMsg.textContent = 'Profile saved.';
+        // also update sidebar immediately if index is open in same tab
+        // (index listens to auth state changes and user.displayName/photoURL)
+      } catch (err) {
+        console.error(err);
+        statusMsg.textContent = 'Save failed.';
+      }
+      setTimeout(()=> statusMsg.textContent = '', 2500);
+    });
+
+    // Reset password (sends password reset email)
+    resetPassBtn.addEventListener('click', async () => {
+      const email = currentUser?.email || emailEl.value;
+      if (!email) { statusMsg.textContent = 'No email available.'; return; }
+      statusMsg.textContent = 'Sending reset email...';
+      try {
+        await sendPasswordResetEmail(auth, email);
+        statusMsg.textContent = 'Reset email sent.';
+      } catch (err) {
+        console.error(err);
+        statusMsg.textContent = 'Failed to send reset email.';
+      }
+      setTimeout(()=> statusMsg.textContent = '', 3000);
+    });
+
+  </script>
+</body>
+</html>
