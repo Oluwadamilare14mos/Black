@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Delete Account</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      background: #b30000; /* RED DANGER BACKGROUND */
+      font-family: "Poppins", sans-serif;
+      color: #fff;
+    }
+
+    .container {
+      max-width: 450px;
+      margin: 60px auto;
+      padding: 20px;
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: 15px;
+      backdrop-filter: blur(5px);
+    }
+
+    h2 {
+      text-align: center;
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: #fff;
+    }
+
+    .danger-icon {
+      text-align: center;
+      font-size: 80px;
+      margin-bottom: 10px;
+    }
+
+    .warning-text {
+      text-align: center;
+      font-size: 16px;
+      margin-bottom: 25px;
+      color: #ffe6e6;
+      font-weight: 500;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    input {
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      background: #330000;
+      color: #fff;
+      font-size: 15px;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      background: #ff0000;
+      border: none;
+      border-radius: 10px;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    button:hover {
+      opacity: 0.85;
+    }
+
+    .msg {
+      margin-top: 20px;
+      padding: 12px;
+      border-radius: 10px;
+      font-size: 14px;
+      display: none;
+    }
+
+    .success {
+      background: #0d6d3d;
+    }
+
+    .error {
+      background: #7a0b0b;
+    }
+
+    a.back {
+      display: block;
+      margin-top: 25px;
+      text-align: center;
+      color: #fff;
+      opacity: 0.7;
+      font-size: 14px;
+      text-decoration: none;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+
+    <div class="danger-icon">⚠️</div>
+    <h2>Delete Account</h2>
+
+    <p class="warning-text">
+      This action is permanent. Your account, profile, wishlist, orders, and all data will be removed forever.
+      <br><br>
+      This cannot be undone.
+    </p>
+
+    <div class="form-group">
+      <label>Confirm Password</label>
+      <input type="password" id="password" placeholder="Enter your password">
+    </div>
+
+    <button id="deleteAccountBtn">DELETE ACCOUNT PERMANENTLY</button>
+
+    <div id="msgBox" class="msg"></div>
+
+    <a href="settings.html" class="back">← Back to Settings</a>
+  </div>
+
+  <!-- FIREBASE SDK -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import {
+      getAuth,
+      onAuthStateChanged,
+      deleteUser,
+      EmailAuthProvider,
+      reauthenticateWithCredential
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+    import {
+      getFirestore,
+      doc,
+      deleteDoc
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    import {
+      getStorage,
+      ref,
+      deleteObject
+    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+
+
+    // YOUR FIREBASE CONFIG
+    const firebaseConfig = {
+      apiKey: "YOUR KEY",
+      authDomain: "YOUR DOMAIN",
+      projectId: "YOUR PROJECT",
+      storageBucket: "YOUR BUCKET",
+      messagingSenderId: "YOUR ID",
+      appId: "YOUR APP"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth();
+    const db = getFirestore();
+    const storage = getStorage();
+
+    const passwordInput = document.getElementById("password");
+    const msgBox = document.getElementById("msgBox");
+    const deleteBtn = document.getElementById("deleteAccountBtn");
+
+    let currentUser = null;
+
+    function showMsg(type, text) {
+      msgBox.className = "msg " + type;
+      msgBox.innerText = text;
+      msgBox.style.display = "block";
+    }
+
+    onAuthStateChanged(auth, user => {
+      if (!user) window.location.href = "login.html";
+      currentUser = user;
+    });
+
+    deleteBtn.addEventListener("click", async () => {
+      const pass = passwordInput.value.trim();
+      if (!pass) return showMsg("error", "Password is required.");
+
+      try {
+        // Re-authenticate
+        const credential = EmailAuthProvider.credential(currentUser.email, pass);
+        await reauthenticateWithCredential(currentUser, credential);
+
+        // Delete Firestore user doc
+        await deleteDoc(doc(db, "users", currentUser.uid));
+
+        // Delete profile picture from storage
+        if (currentUser.photoURL) {
+          try {
+            const picRef = ref(storage, currentUser.photoURL);
+            await deleteObject(picRef);
+          } catch (e) {
+            console.log("Profile picture not found or already deleted.");
+          }
+        }
+
+        // Delete Auth account
+        await deleteUser(currentUser);
+
+        showMsg("success", "Account deleted successfully.");
+
+        setTimeout(() => {
+          window.location.href = "login.html";
+        }, 2000);
+
+      } catch (e) {
+        showMsg("error", e.message);
+      }
+    });
+  </script>
+
+</body>
+</html>
