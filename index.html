@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+hi<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
@@ -152,90 +152,105 @@
     </div>
   </div>
 
-  <!-- SIDEBAR / MENU: right slide drawer (no payment block) -->
-  <aside id="sidebar" class="sidebar sidebar-hidden fixed top-0 right-0 h-full w-80 sidebar-black text-white z-50 p-6 overflow-y-auto border-l">
-    <button id="closeSidebar" class="text-white text-2xl absolute top-4 right-4">×</button>
+  <!-- SIDEBAR / MENU -->
+<aside id="sidebar" class="sidebar sidebar-hidden fixed top-0 right-0 h-full w-80 sidebar-black text-white z-50 p-6 overflow-y-auto border-l">
+  <button id="closeSidebar" class="text-white text-2xl absolute top-4 right-4">×</button>
 
-    <!-- Profile header (click to expand profile options) -->
-    <div class="mt-10 text-center">
-      <button id="profileToggle" class="mx-auto w-full bg-transparent border-none text-white">
-        <img id="profilePic" src="https://img.icons8.com/ios-filled/100/ffffff/user-male-circle.png" alt="profile" class="mx-auto w-20 h-20 rounded-full border-2 border-brand mb-3 object-cover"/>
-        <h3 id="profileName" class="font-semibold text-lg">Guest</h3>
-        <p id="profileMeta" class="text-sm text-gray-300">Age: — • Gender: —</p>
-      </button>
+  <!-- PROFILE HEADER -->
+  <div class="mt-10 text-center">
+    <button id="profileToggle" class="mx-auto w-full bg-transparent border-none text-white">
+      <img id="profilePic" src="https://img.icons8.com/ios-filled/100/ffffff/user-male-circle.png" alt="profile" class="mx-auto w-20 h-20 rounded-full border-2 border-brand mb-3 object-cover"/>
+      <h3 id="profileName" class="font-semibold text-lg">Guest</h3>
+      <p id="profileMeta" class="text-sm text-gray-300">Age: — • Gender: —</p>
+    </button>
 
-      <div id="profileOptions" class="profile-options mt-3 px-2">
-        <button id="editProfileBtn" class="w-full text-left px-3 py-2 rounded hover:bg-white/10">Edit Profile</button>
-        <button id="viewOrdersBtn" class="w-full text-left px-3 py-2 rounded hover:bg-white/10">My Orders</button>
-        <button id="logoutBtn" class="w-full text-left px-3 py-2 rounded hover:bg-white/10">Logout</button>
-      </div>
+    <!-- PROFILE OPTIONS -->
+    <div id="profileOptions" class="profile-options mt-3 px-2">
+      <button id="editProfileBtn" class="w-full text-left px-3 py-2 rounded hover:bg-white/10">Edit Profile</button>
+      <button id="viewOrdersBtn" class="w-full text-left px-3 py-2 rounded hover:bg-white/10">My Orders</button>
+      <button id="settingsBtn" class="w-full text-left px-3 py-2 rounded hover:bg-white/10">Settings</button>
+      <button id="notificationsBtn" class="w-full text-left px-3 py-2 rounded hover:bg-white/10">Notifications</button>
+      <button id="cartBtn" class="w-full text-left px-3 py-2 rounded hover:bg-white/10">Cart</button>
+      <button id="wishlistBtn" class="w-full text-left px-3 py-2 rounded hover:bg-white/10">Wishlist</button>
+      <button id="deliveryBtn" class="w-full text-left px-3 py-2 rounded hover:bg-white/10">Delivery Tracking</button>
+      <button id="supportBtn" class="w-full text-left px-3 py-2 rounded hover:bg-white/10">Support</button>
+      <button id="logoutBtn" class="w-full text-left px-3 py-2 rounded hover:bg-white/10">Logout</button>
     </div>
+  </div>
 
-    <!-- Collapsible Contact (initially hidden) -->
-    <div class="mt-6">
-      <button class="accordion-btn text-white" id="contactToggle">
-        <span class="flex items-center">
-          <svg class="icon-small" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 8V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v1" stroke="#ff6600" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          Contact
-        </span>
-        <span id="contactArrow">▼</span>
-      </button>
-      <div id="contactBlock" class="hidden-block text-sm px-2 mt-2">
-        <p><strong>Customer Service:</strong> <span class="text-white">08117854139</span></p>
-        <p><strong>Email:</strong> <a href="mailto:olaniyioluwafunke08@gmail.com" class="text-brand">olaniyioluwafunke08@gmail.com</a></p>
-        <p><strong>WhatsApp:</strong> <a href="https://wa.me/+2348117854139" target="_blank" class="text-brand">08117854139</a></p>
-      </div>
+  <!-- CONTACT -->
+  <div class="mt-6">
+    <button class="accordion-btn text-white" id="contactToggle">
+      <span class="flex items-center">
+        <svg class="icon-small" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 8V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v1" stroke="#ff6600" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Contact
+      </span>
+      <span id="contactArrow">▼</span>
+    </button>
+
+    <div id="contactBlock" class="hidden-block text-sm px-2 mt-2">
+      <p><strong>Customer Service:</strong> <span class="text-white">08117854139</span></p>
+      <p><strong>Email:</strong> <a href="mailto:olaniyioluwafunke08@gmail.com" class="text-brand">olaniyioluwafunke08@gmail.com</a></p>
+      <p><strong>WhatsApp:</strong> <a href="https://wa.me/+2348117854139" target="_blank" class="text-brand">08117854139</a></p>
     </div>
+  </div>
 
-    <!-- Collapsible About + Help & Support inside (Help hidden until clicked) -->
-    <div class="mt-6 border-t border-white/10 pt-4">
-      <button class="accordion-btn text-white" id="aboutToggle">
-        <span class="flex items-center">
-          <svg class="icon-small" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2v4M12 22v-4M4.22 4.22l2.83 2.83M17 17l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M17 7l2.83-2.83" stroke="#ff6600" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          About Black 🖤
-        </span>
-        <span id="aboutArrow">▼</span>
-      </button>
+  <!-- ABOUT + HELP -->
+  <div class="mt-6 border-t border-white/10 pt-4">
+    <button class="accordion-btn text-white" id="aboutToggle">
+      <span class="flex items-center">
+        <svg class="icon-small" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2v4M12 22v-4M4.22 4.22l2.83 2.83M17 17l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M17 7l2.83-2.83" stroke="#ff6600" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        About Black 🖤
+      </span>
+      <span id="aboutArrow">▼</span>
+    </button>
 
-      <div id="aboutBlock" class="hidden-block text-sm px-2 mt-2">
-        <p class="text-gray-300 leading-relaxed">
-          Black is your go-to online fashion store — where confidence meets class.
-          We deliver bold, modern, and comfortable styles for the whole family. Shop with ease, pay securely, and step out in confidence.
-        </p>
+    <div id="aboutBlock" class="hidden-block text-sm px-2 mt-2">
+      <p class="text-gray-300 leading-relaxed">
+        Black is your go-to online fashion store — where confidence meets class.
+      </p>
 
-        <!-- Help & Support toggle -->
-        <div class="mt-3">
-          <button class="accordion-btn text-white" id="helpToggle">
-            <span>Help & Support</span>
-            <span id="helpArrow">▼</span>
-          </button>
+      <div class="mt-3">
+        <button class="accordion-btn text-white" id="helpToggle">
+          <span>Help & Support</span>
+          <span id="helpArrow">▼</span>
+        </button>
 
-          <div id="helpBlock" class="hidden-block mt-2">
-            <p class="text-gray-300 text-sm mb-2">Tell us what's going on — we'll contact you via email.</p>
-            <form id="helpForm" class="space-y-2">
-              <input type="text" id="helpName" placeholder="Your name" class="w-full px-3 py-2 rounded bg-white/5 border border-white/10 text-white" required />
-              <input type="email" id="helpEmail" placeholder="Your email" class="w-full px-3 py-2 rounded bg-white/5 border border-white/10 text-white" required />
-              <textarea id="helpMessage" rows="4" placeholder="Describe your issue..." class="w-full px-3 py-2 rounded bg-white/5 border border-white/10 text-white" required></textarea>
-              <div class="flex gap-2">
-                <button type="button" id="sendHelpBtn" class="flex-1 px-3 py-2 bg-brand text-white rounded">Send</button>
-                <button type="button" id="clearHelpBtn" class="flex-1 px-3 py-2 bg-white text-black rounded">Clear</button>
-              </div>
-              <p id="helpStatus" class="text-sm mt-1"></p>
-            </form>
-          </div>
+        <div id="helpBlock" class="hidden-block mt-2">
+          <p class="text-gray-300 text-sm mb-2">Tell us what's going on — we'll contact you by email.</p>
+
+          <form id="helpForm" class="space-y-2">
+            <input type="text" id="helpName" placeholder="Your name" class="w-full px-3 py-2 rounded bg-white/5 border border-white/10 text-white" required />
+            <input type="email" id="helpEmail" placeholder="Your email" class="w-full px-3 py-2 rounded bg-white/5 border border-white/10 text-white" required />
+            <textarea id="helpMessage" rows="4" placeholder="Describe your issue..." class="w-full px-3 py-2 rounded bg-white/5 border border-white/10 text-white" required></textarea>
+
+            <div class="flex gap-2">
+              <button type="button" id="sendHelpBtn" class="flex-1 px-3 py-2 bg-brand text-white rounded">Send</button>
+              <button type="button" id="clearHelpBtn" class="flex-1 px-3 py-2 bg-white text-black rounded">Clear</button>
+            </div>
+
+            <p id="helpStatus" class="text-sm mt-1"></p>
+          </form>
+
         </div>
       </div>
     </div>
+  </div>
+</aside>
 
-    <!-- Sign in/out buttons (kept) -->
-    <div class="mt-6">
-      <button id="signinBtn" class="w-full bg-brand text-white py-2 rounded-full font-semibold mb-3">Login</button>
-      <button id="signoutBtn" class="w-full bg-white text-brand border border-brand py-2 rounded-full font-semibold">Sign Out</button>
-    </div>
-  </aside>
-
-  <div id="overlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-40"></div>
-
+<!-- MENU NAVIGATION SCRIPTS -->
+<script>
+document.getElementById("editProfileBtn").onclick = () => window.location.href = "editprofile.html";
+document.getElementById("viewOrdersBtn").onclick = () => window.location.href = "order.html";
+document.getElementById("settingsBtn").onclick = () => window.location.href = "sittings.html";
+document.getElementById("notificationsBtn").onclick = () => window.location.href = "notifications.html";
+document.getElementById("cartBtn").onclick = () => window.location.href = "cart.html";
+document.getElementById("wishlistBtn").onclick = () => window.location.href = "wishlist.html";
+document.getElementById("deliveryBtn").onclick = () => window.location.href = "deliverytracking.html";
+document.getElementById("supportBtn").onclick = () => window.location.href = "support.html";
+document.getElementById("logoutBtn").onclick = () => window.location.href = "signout.html";
+</script>
+  
   <!-- FOOTER -->
   <footer class="bg-gray-900 text-white text-center py-6 mt-10">
     <p>&copy; 2025 Black. All rights reserved.</p>
