@@ -255,3 +255,338 @@ DOCTYPE html>
     <p>&copy; 2025 Black. All rights reserved.</p>
     <p class="text-sm text-gray-400">Design by DamiTools.</p>
   </footer>
+
+  <!-- CLEANED COMBINED MODULE SCRIPT -->
+<script type="module">
+  // Single Firebase init + auth + UI wiring
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDsrL5UHWeFtQAX5XCI1hX7As91PWz59Cs",
+    authDomain: "black-1108.firebaseapp.com",
+    projectId: "black-1108",
+    storageBucket: "black-1108.appspot.com",
+    messagingSenderId: "639439190327",
+    appId: "1:639439190327:web:b08b640aba7e8f7d76c2b2"
+  };
+
+  // init
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  // expose for non-module scripts that check window.auth
+  window.auth = auth;
+
+  // init emailjs safely (if included)
+  if (window.emailjs && emailjs.init) try { emailjs.init('Cp84jtP5v8VnUc0SQ'); } catch(e){}
+
+  // UI refs
+  const menuBtn = document.getElementById('menuBtn');
+  const sidebar = document.getElementById('sidebar');
+  const overlay = document.getElementById('overlay');
+  const closeSidebar = document.getElementById('closeSidebar');
+  const signinBtn = document.getElementById('signinBtn');
+  const signoutBtn = document.getElementById('signoutBtn');
+  const profileNameEl = document.getElementById('profileName');
+  const profilePicEl = document.getElementById('profilePic');
+  const profileToggle = document.getElementById('profileToggle');
+  const profileOptions = document.getElementById('profileOptions');
+  const editProfileBtn = document.getElementById('editProfileBtn');
+  const viewOrdersBtn = document.getElementById('viewOrdersBtn');
+  const productGrid = document.getElementById('productGrid');
+  const categoryList = document.getElementById('categoryList');
+  const cartCountEl = document.getElementById('cartCount');
+  const loadMoreBtn = document.getElementById('loadMoreBtn');
+  const randomProduct = document.getElementById('randomProduct');
+
+  const contactToggle = document.getElementById('contactToggle');
+  const contactBlock = document.getElementById('contactBlock');
+  const contactArrow = document.getElementById('contactArrow');
+
+  const aboutToggle = document.getElementById('aboutToggle');
+  const aboutBlock = document.getElementById('aboutBlock');
+  const aboutArrow = document.getElementById('aboutArrow');
+
+  const helpToggle = document.getElementById('helpToggle');
+  const helpBlock = document.getElementById('helpBlock');
+  const helpArrow = document.getElementById('helpArrow');
+
+  const helpForm = document.getElementById('helpForm');
+  const sendHelpBtn = document.getElementById('sendHelpBtn');
+  const clearHelpBtn = document.getElementById('clearHelpBtn');
+  const helpStatus = document.getElementById('helpStatus');
+
+  // Helpers: open/close sidebar
+  const openSidebar = ()=> { sidebar.classList.remove('sidebar-hidden'); sidebar.classList.add('sidebar-visible'); overlay.classList.remove('hidden'); };
+  const closeMenu = ()=> { sidebar.classList.remove('sidebar-visible'); sidebar.classList.add('sidebar-hidden'); overlay.classList.add('hidden'); };
+  menuBtn?.addEventListener('click', openSidebar);
+  closeSidebar?.addEventListener('click', closeMenu);
+  overlay?.addEventListener('click', closeMenu);
+
+  // signin button -> login page
+  signinBtn?.addEventListener('click', ()=> window.location.href = 'login.html');
+
+  // sign out
+  signoutBtn?.addEventListener('click', async ()=> {
+    try {
+      await signOut(auth);
+      // clear any local session if used
+      localStorage.removeItem('blackUser');
+      // redirect to login
+      window.location.href = 'login.html';
+    } catch (err) {
+      alert(err.message || 'Sign out failed');
+    }
+  });
+
+  // profile toggle (show/hide)
+  profileToggle?.addEventListener('click', ()=>{
+    profileOptions.style.display = (profileOptions.style.display === 'block') ? 'none' : 'block';
+  });
+
+  // Also let clicking profile picture or name open account (if logged in) or login (if not)
+  function profileClickHandler() {
+    const user = auth.currentUser;
+    if (user) window.location.href = 'account.html';
+    else window.location.href = 'login.html';
+  }
+  profilePicEl?.addEventListener('click', profileClickHandler);
+  profileNameEl?.addEventListener('click', profileClickHandler);
+
+  // fix accordion arrows and behavior (use normal characters)
+  contactToggle?.addEventListener('click', ()=>{
+    if (contactBlock.style.display === 'block') { contactBlock.style.display = 'none'; contactArrow.textContent = '▼'; } else { contactBlock.style.display = 'block'; contactArrow.textContent = '▲'; }
+  });
+  aboutToggle?.addEventListener('click', ()=>{
+    if (aboutBlock.style.display === 'block') { aboutBlock.style.display = 'none'; aboutArrow.textContent = '▼'; } else { aboutBlock.style.display = 'block'; aboutArrow.textContent = '▲'; }
+  });
+  helpToggle?.addEventListener('click', ()=>{
+    if (helpBlock.style.display === 'block') { helpBlock.style.display = 'none'; helpArrow.textContent = '▼'; } else { helpBlock.style.display = 'block'; helpArrow.textContent = '▲'; }
+  });
+
+  // help form -> emailjs
+  sendHelpBtn?.addEventListener('click', ()=>{
+    const name = document.getElementById('helpName').value.trim();
+    const email = document.getElementById('helpEmail').value.trim();
+    const message = document.getElementById('helpMessage').value.trim();
+    if (!name || !email || !message) { helpStatus.textContent = 'Please fill out all fields.'; helpStatus.style.color = '#ffcc00'; return; }
+    helpStatus.textContent = 'Sending...'; helpStatus.style.color = '#fff';
+    const templateParams = { from_name: name, reply_to: email, message: message };
+    if (window.emailjs && emailjs.send) {
+      emailjs.send('service_rg6m82u','template_n9i0263', templateParams)
+        .then(() => { helpStatus.textContent = 'Message sent — we will contact you soon.'; helpStatus.style.color = '#7fff7f'; helpForm.reset(); })
+        .catch((err) => { helpStatus.textContent = 'Failed to send. Try again later.'; helpStatus.style.color = '#ff7f7f'; console.error(err); });
+    } else {
+      helpStatus.textContent = 'Email service unavailable.'; helpStatus.style.color = '#ff7f7f';
+    }
+  });
+  clearHelpBtn?.addEventListener('click', ()=> { helpForm.reset(); helpStatus.textContent = ''; });
+
+  // quick menu navigation
+  editProfileBtn?.addEventListener('click', ()=> window.location.href = 'editprofile.html');
+  viewOrdersBtn?.addEventListener('click', ()=> window.location.href = 'order.html');
+
+  // sidebar quick links (guarded)
+  const safeGo = (id, url) => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener('click', ()=> window.location.href = url);
+  };
+  safeGo('settingsBtn','sittings.html');
+  safeGo('notificationsBtn','notifications.html');
+  safeGo('cartBtn','cart.html'); // fixed to open cart page
+  safeGo('wishlistBtn','wishlist.html');
+  safeGo('deliveryBtn','deliverytracking.html');
+  safeGo('supportBtn','support.html');
+
+  // --- Categories, products generator, render, search, attach listeners (kept and cleaned) ---
+  const categories = [
+    "Men wears","Women wears","Kids wears","Wristwatch","Shoes","Women Heels",
+    "Chain","Ring","Boxers","Underwears","Bet","Round neck","Jugers","Bedsheets",
+    "Pilo","Wall Cutting","Accessories","Hats","Bags","Socks","Jackets"
+  ];
+
+  // fill category grid (top)
+  categories.forEach(cat => {
+    if (!categoryList) return;
+    const wrapper = document.createElement('div');
+    wrapper.className = 'flex justify-center';
+    const btn = document.createElement('button');
+    btn.className = 'px-3 py-2 rounded bg-white/80 border hover:border-brand text-sm';
+    btn.textContent = cat;
+    btn.onclick = ()=> filterByCategory(cat);
+    wrapper.appendChild(btn);
+    categoryList.appendChild(wrapper);
+  });
+
+  // banner
+  const bannerSeeds = ['banner1','banner2','banner3','banner4'];
+  function changeBanner(){ if (randomProduct) randomProduct.src = `https://picsum.photos/seed/${bannerSeeds[Math.floor(Math.random()*bannerSeeds.length)]}/1500/300`; }
+  changeBanner();
+  setInterval(changeBanner, 6000);
+
+  const sampleAdjectives = ["Classic","Modern","Stylish","Comfort","Premium","Urban","Luxury","Casual","Elite","Cozy","Vintage","Sport","Slim","Relaxed","Smart"];
+  const sampleItems = ["Polo Shirt","Summer Dress","Sneakers","Heels","Chain Necklace","Gold Ring","Boxer Briefs","Underwear Set","Round Neck Tee","Jumper","Bedsheet Set","Pilot Cap","Wall Cutter","Leather Jacket","Socks Pack","Hoodie","Cargo Pants","Denim Jacket","Wallet","Handbag"];
+  function rand(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
+
+  window.products = window.products || [];
+  for(let i=1;i<=200;i++){
+    const cat = categories[i % categories.length];
+    const name = `${sampleAdjectives[i % sampleAdjectives.length]} ${sampleItems[i % sampleItems.length]} ${i}`;
+    let minP = 7500, maxP = 45000;
+    if (name.toLowerCase().includes('socks') || name.toLowerCase().includes('boxer') || name.toLowerCase().includes('underwear')) { minP = 2500; maxP = 9000; }
+    if (name.toLowerCase().includes('rings') || name.toLowerCase().includes('chain') || name.toLowerCase().includes('handbag')) { minP = 7000; maxP = 55000; }
+    const priceVal = rand(minP, maxP);
+    const price = '#' + priceVal.toLocaleString();
+    const img = `https://picsum.photos/seed/prod${i}/600/600`;
+    const imgs = [
+      `https://picsum.photos/seed/prod${i}a/800/800`,
+      `https://picsum.photos/seed/prod${i}b/800/800`,
+      `https://picsum.photos/seed/prod${i}c/800/800`
+    ];
+    window.products.push({ id:i, name, category:cat, priceVal, price, img, imgs, description: `High-quality ${cat} — ${name}. Perfect for everyday wear and special occasions.` });
+  }
+
+  // render products
+  let perPage = 24, currentMax = perPage;
+  function renderProducts(limit=currentMax){
+    if (!productGrid) return;
+    productGrid.innerHTML = '';
+    const list = window.products.slice(0, limit);
+    list.forEach(p=>{
+      const div = document.createElement('div'); div.className='card overflow-hidden';
+      div.innerHTML = `
+        <img src="${p.img}" alt="${p.name}" class="prod-img" />
+        <div class="p-3">
+          <h4 class="font-semibold text-sm mb-1">${p.name}</h4>
+          <p class="text-xs text-gray-600 mb-2">${p.category}</p>
+          <p class="text-lg font-bold text-brand">${p.price}</p>
+          <div class="mt-3 flex gap-2">
+            <a href="product.html?id=${p.id}" class="flex-1 px-3 py-2 border rounded text-sm text-center">Open</a>
+            <button data-id="${p.id}" class="add-to-cart flex-1 px-3 py-2 bg-brand text-white rounded text-sm">Add to Cart</button>
+          </div>
+        </div>
+      `;
+      productGrid.appendChild(div);
+    });
+    attachListeners();
+    if (loadMoreBtn) loadMoreBtn.style.display = (limit >= window.products.length) ? 'none' : 'inline-block';
+  }
+  renderProducts();
+  loadMoreBtn?.addEventListener('click', ()=> { currentMax += perPage; renderProducts(); });
+
+  function filterByCategory(cat){
+    if (!productGrid) return;
+    productGrid.innerHTML = '';
+    const filtered = window.products.filter(p => p.category === cat);
+    filtered.forEach(p=>{
+      const div = document.createElement('div'); div.className='card overflow-hidden';
+      div.innerHTML = `
+        <img src="${p.img}" alt="${p.name}" class="prod-img" />
+        <div class="p-3">
+          <h4 class="font-semibold text-sm mb-1">${p.name}</h4>
+          <p class="text-xs text-gray-600 mb-2">${p.category}</p>
+          <p class="text-lg font-bold text-brand">${p.price}</p>
+          <div class="mt-3 flex gap-2">
+            <a href="product.html?id=${p.id}" class="flex-1 px-3 py-2 border rounded text-sm text-center">Open</a>
+            <button data-id="${p.id}" class="add-to-cart flex-1 px-3 py-2 bg-brand text-white rounded text-sm">Add to Cart</button>
+          </div>
+        </div>
+      `;
+      productGrid.appendChild(div);
+    });
+    attachListeners();
+  }
+
+  // Attach listeners to product card buttons (Add to cart)
+  function attachListeners(){
+    document.querySelectorAll('.add-to-cart').forEach(btn=>{
+      btn.onclick = async () => {
+        const id = Number(btn.dataset.id);
+        // require login
+        const user = auth.currentUser;
+        if (!user) { window.location.href = 'login.html'; return; }
+        if (typeof window.addToCart === 'function') {
+          window.addToCart(id);
+        } else {
+          // fallback: update local cart count only
+          const current = Number(cartCountEl?.textContent || 0) + 1;
+          if (cartCountEl) cartCountEl.textContent = current;
+        }
+      };
+    });
+  }
+
+  // search
+  const searchInput = document.getElementById('searchInput');
+  searchInput?.addEventListener('keydown', (e)=>{
+    if (e.key === 'Enter'){
+      const q = searchInput.value.trim().toLowerCase();
+      if (!q) { renderProducts(); return; }
+      const filtered = window.products.filter(p => p.name.toLowerCase().includes(q) || p.category.toLowerCase().includes(q));
+      if (!productGrid) return;
+      productGrid.innerHTML = '';
+      filtered.forEach(p=>{
+        const div = document.createElement('div'); div.className='card overflow-hidden';
+        div.innerHTML = `
+          <img src="${p.img}" alt="${p.name}" class="prod-img" />
+          <div class="p-3">
+            <h4 class="font-semibold text-sm mb-1">${p.name}</h4>
+            <p class="text-xs text-gray-600 mb-2">${p.category}</p>
+            <p class="text-lg font-bold text-brand">${p.price}</p>
+            <div class="mt-3 flex gap-2">
+              <a href="product.html?id=${p.id}" class="flex-1 px-3 py-2 border rounded text-sm text-center">Open</a>
+              <button data-id="${p.id}" class="add-to-cart flex-1 px-3 py-2 bg-brand text-white rounded text-sm">Add to Cart</button>
+            </div>
+          </div>
+        `;
+        productGrid.appendChild(div);
+      });
+      attachListeners();
+    }
+  });
+
+  // modal close (if modal present)
+  const modal = document.getElementById('productModal');
+  const closeModal = document.getElementById('closeModal');
+  closeModal?.addEventListener('click', ()=>{ modal.classList.add('hidden'); });
+
+  // Single auth state handler
+  onAuthStateChanged(auth, user => {
+    if (!user) {
+      profileNameEl && (profileNameEl.textContent = 'Guest');
+      profilePicEl && (profilePicEl.src = 'https://img.icons8.com/ios-filled/100/ffffff/user-male-circle.png');
+      profileOptions && (profileOptions.style.display = 'none');
+      signoutBtn && (signoutBtn.style.display = 'none');
+      signinBtn && (signinBtn.style.display = 'inline-block');
+      return;
+    }
+    // logged in
+    const name = user.displayName || (user.email ? user.email.split('@')[0] : 'User');
+    profileNameEl && (profileNameEl.textContent = name.split(' ')[0]);
+    profilePicEl && (profilePicEl.src = user.photoURL || `https://picsum.photos/seed/avatar${user.uid}/200/200`);
+    profileOptions && (profileOptions.style.display = 'block');
+    signoutBtn && (signoutBtn.style.display = 'inline-block');
+    signinBtn && (signinBtn.style.display = 'none');
+  });
+
+  // Protect index page: redirect to login if not authenticated
+  // (This runs immediately; the onAuthStateChanged above will update UI)
+  onAuthStateChanged(auth, (user) => {
+    // Only redirect if we are on index.html (protects pages that rely on login)
+    const isIndex = location.pathname.endsWith('index.html') || location.pathname === '/' || location.pathname.endsWith('/');
+    if (isIndex && !user) {
+      window.location.href = 'login.html';
+    }
+  });
+
+  // Update cart count from localStorage
+  function updateCartCountLocal() {
+    let cart = JSON.parse(localStorage.getItem("cart")) || [];
+    const count = cart.reduce((s, it) => s + (it.qty || 0), 0);
+    if (cartCountEl) cartCountEl.textContent = count;
+  }
+  updateCartCountLocal();
+  // expose update function for non-module scripts
+  window.updateCartCount = updateCartCountLocal;
+
+</script>
