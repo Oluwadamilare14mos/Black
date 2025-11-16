@@ -477,8 +477,14 @@
         const id = Number(btn.dataset.id);
         const user = auth.currentUser;
         if (!user) { window.location.href = 'login.html'; return; }
-        cartCount++; cartCountEl.textContent = cartCount;
-        // optionally save cart to Firestore
+        // existing code incremented cartCount local var, but didn't persist
+        // Now we persist to localStorage using addToCart helper (defined below in non-module script)
+        // call the global addToCart if it exists, else fallback to naive behavior
+        if (typeof window.addToCart === 'function') {
+          window.addToCart(id);
+        } else {
+          cartCount++; cartCountEl.textContent = cartCount;
+        }
       };
     });
   }
@@ -566,11 +572,117 @@
   <script>
   function updateCartCount() {
     let cart = JSON.parse(localStorage.getItem("cart")) || [];
-    document.getElementById("cartCount").textContent = cart.length;
+    // cart is array of items; count is sum of qty
+    const count = cart.reduce((s, it) => s + (it.qty || 0), 0);
+    document.getElementById("cartCount").textContent = count;
   }
 
   updateCartCount();
 </script>
+
+  <!-- NEW: localStorage cart helper & event delegation (non-module, safe) -->
+  <script>
+  (function(){
+    // Helper: get cart from localStorage
+    function getCart() {
+      try {
+        return JSON.parse(localStorage.getItem('cart')) || [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    // Helper: save cart
+    function saveCart(cart) {
+      localStorage.setItem('cart', JSON.stringify(cart));
+      updateCartCount();
+    }
+
+    // Add product to cart by productId (uses global `products` array)
+    window.addToCart = function(productId) {
+      // Ensure products array exists
+      if (!window.products || !Array.isArray(window.products)) {
+        console.error('Products list not found.');
+        return;
+      }
+
+      const prod = window.products.find(p => Number(p.id) === Number(productId));
+      if (!prod) {
+        console.error('Product not found for id', productId);
+        return;
+      }
+
+      // require logged-in user: check firebase auth if available
+      if (window.auth && !window.auth.currentUser) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      const cart = getCart();
+      const existing = cart.find(i => Number(i.id) === Number(prod.id));
+      if (existing) {
+        existing.qty = (existing.qty || 0) + 1;
+      } else {
+        cart.push({
+          id: prod.id,
+          productId: prod.id,
+          name: prod.name,
+          priceVal: prod.priceVal || 0,
+          priceText: prod.price || ('#' + (prod.priceVal || 0)),
+          img: prod.img,
+          qty: 1,
+          options: {} // reserved
+        });
+      }
+      saveCart(cart);
+
+      // small visual feedback — optional
+      try {
+        // tiny toast
+        const t = document.createElement('div');
+        t.textContent = `${prod.name} added to cart`;
+        t.style.position = 'fixed';
+        t.style.right = '16px';
+        t.style.bottom = '16px';
+        t.style.background = '#111';
+        t.style.color = '#fff';
+        t.style.padding = '10px 14px';
+        t.style.borderRadius = '8px';
+        t.style.boxShadow = '0 6px 18px rgba(0,0,0,0.2)';
+        document.body.appendChild(t);
+        setTimeout(()=> t.remove(), 1600);
+      } catch(e){}
+    };
+
+    // Delegated handler: catch clicks on any .add-to-cart buttons (works even after render)
+    document.addEventListener('click', function(e){
+      const btn = e.target.closest('.add-to-cart');
+      if (!btn) return;
+      e.preventDefault();
+      const id = btn.getAttribute('data-id');
+      if (!id) return;
+      // prefer firebase auth if defined
+      const authObj = window.auth || (window.firebase && firebase.auth && firebase.auth());
+      if (authObj && !authObj.currentUser) {
+        // not logged in
+        window.location.href = 'login.html';
+        return;
+      }
+      // call addToCart
+      if (typeof window.addToCart === 'function') {
+        window.addToCart(Number(id));
+      }
+    });
+
+    // Keep cart count updated when storage changes (in case user opens multiple tabs)
+    window.addEventListener('storage', function(e){
+      if (e.key === 'cart') updateCartCount();
+    });
+
+    // initialize cart count on load (idempotent)
+    updateCartCount();
+  })();
+  </script>
 
 </body>
 </html>
