@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Account — Black</title>
+
+  <link rel="icon" href="https://img.icons8.com/ios-filled/50/ff6600/user.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: "#ff6600",
+            accent: "#ff3300",
+            dark: "#111827"
+          },
+          fontFamily: { poppins: ["Poppins", "sans-serif"] },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    body { font-family: Poppins, sans-serif; }
+  </style>
+</head>
+
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+
+  <div class="bg-white p-6 rounded-2xl shadow-xl w-full max-w-md">
+
+    <!-- USER PROFILE -->
+    <div class="text-center mb-6">
+      <img id="profilePhoto" 
+           class="w-28 h-28 rounded-full mx-auto shadow-md"
+           src="https://img.icons8.com/ios-glyphs/90/user--v1.png">
+
+      <h2 id="displayName" class="text-2xl font-bold text-dark mt-3">Loading...</h2>
+      <p id="emailText" class="text-gray-600 text-sm"></p>
+    </div>
+
+    <!-- UPDATE NAME -->
+    <label class="block mb-4">
+      <span class="text-sm font-semibold">Update Display Name</span>
+      <input id="nameInput" 
+             type="text" 
+             class="w-full mt-1 px-3 py-2 border rounded focus:ring-2 focus:ring-brand"
+             placeholder="Enter new name">
+    </label>
+
+    <button id="saveNameBtn" 
+            class="w-full py-2 bg-brand text-white font-semibold rounded-full hover:bg-accent transition">
+      Save Name
+    </button>
+
+    <!-- UPDATE PHOTO -->
+    <div class="mt-6">
+      <span class="text-sm font-semibold">Update Profile Photo</span>
+      <input id="photoInput" type="file" accept="image/*"
+             class="w-full mt-2 p-2 border rounded bg-gray-50">
+    </div>
+
+    <button id="savePhotoBtn"
+            class="w-full py-2 mt-3 bg-dark text-white font-semibold rounded-full hover:bg-black transition">
+      Upload New Photo
+    </button>
+
+    <!-- LOGOUT -->
+    <button id="logoutBtn"
+            class="w-full py-2 mt-6 bg-red-600 text-white font-semibold rounded-full hover:bg-red-700 transition">
+      Logout
+    </button>
+
+  </div>
+
+  <!-- Firebase -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import {
+      getAuth,
+      onAuthStateChanged,
+      updateProfile,
+      signOut
+    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
+    import {
+      getStorage,
+      ref,
+      uploadBytes,
+      getDownloadURL
+    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-storage.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDsrL5UHWeFtQAX5XCI1hX7As91PWz59Cs",
+      authDomain: "black-1108.firebaseapp.com",
+      projectId: "black-1108",
+      storageBucket: "black-1108.appspot.com",
+      messagingSenderId: "639439190327",
+      appId: "1:639439190327:web:b08b640aba7e8f7d76c2b2"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const storage = getStorage(app);
+
+    const profilePhoto = document.getElementById("profilePhoto");
+    const displayName = document.getElementById("displayName");
+    const emailText = document.getElementById("emailText");
+
+    const nameInput = document.getElementById("nameInput");
+    const saveNameBtn = document.getElementById("saveNameBtn");
+
+    const photoInput = document.getElementById("photoInput");
+    const savePhotoBtn = document.getElementById("savePhotoBtn");
+
+    const logoutBtn = document.getElementById("logoutBtn");
+
+    // =============== AUTH PROTECTION =================
+    onAuthStateChanged(auth, (user) => {
+      if (!user) {
+        window.location.href = "login.html";
+        return;
+      }
+
+      displayName.textContent = user.displayName || "User";
+      nameInput.value = user.displayName || "";
+      emailText.textContent = user.email;
+
+      profilePhoto.src =
+        user.photoURL ||
+        "https://img.icons8.com/ios-glyphs/90/user--v1.png";
+    });
+
+    // =============== UPDATE NAME =================
+    saveNameBtn.addEventListener("click", async () => {
+      const user = auth.currentUser;
+      if (!user) return;
+
+      const newName = nameInput.value.trim();
+      if (!newName) return alert("Name cannot be empty.");
+
+      await updateProfile(user, { displayName: newName });
+      displayName.textContent = newName;
+
+      alert("Name updated successfully!");
+    });
+
+    // =============== UPDATE PHOTO =================
+    savePhotoBtn.addEventListener("click", async () => {
+      const user = auth.currentUser;
+      if (!user) return;
+
+      const file = photoInput.files[0];
+      if (!file) return alert("Please select a photo");
+
+      const storageRef = ref(storage, `profilePhotos/${user.uid}.jpg`);
+
+      await uploadBytes(storageRef, file);
+      const url = await getDownloadURL(storageRef);
+
+      await updateProfile(user, { photoURL: url });
+
+      profilePhoto.src = url;
+      alert("Profile photo updated!");
+    });
+
+    // =============== LOGOUT =================
+    logoutBtn.addEventListener("click", async () => {
+      await signOut(auth);
+      window.location.href = "login.html";
+    });
+
+  </script>
+
+</body>
+</html>
