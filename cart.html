@@ -537,5 +537,14 @@
        ------------------------------ */
 
   </script>
+
+  <script>
+  // Read cart count from localStorage
+  const cartCountEl = document.getElementById('cartCount');
+  if (cartCountEl) {
+    const stored = JSON.parse(localStorage.getItem('cartItems') || '[]');
+    cartCountEl.textContent = stored.length;
+  }
+</script>
 </body>
 </html>
