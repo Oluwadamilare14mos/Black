@@ -1,4 +1,4 @@
-hi<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
@@ -67,7 +67,7 @@ hi<!DOCTYPE html>
               <circle cx="19" cy="20" r="1.5" fill="#111827"/>
               <path d="M1 1h4l2.5 12h10.5l2-8H6" stroke="#111827" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
             </svg>
-            <span id="cartCount"></span>
+            <span id="cartCount">0</span>
           </span>
         </h1>
       </div>
@@ -153,111 +153,99 @@ hi<!DOCTYPE html>
   </div>
 
   <!-- SIDEBAR / MENU -->
-<aside id="sidebar" class="sidebar sidebar-hidden fixed top-0 right-0 h-full w-80 sidebar-black text-white z-50 p-6 overflow-y-auto border-l">
-  <button id="closeSidebar" class="text-white text-2xl absolute top-4 right-4">×</button>
+  <aside id="sidebar" class="sidebar sidebar-hidden fixed top-0 right-0 h-full w-80 sidebar-black text-white z-50 p-6 overflow-y-auto border-l">
+    <button id="closeSidebar" class="text-white text-2xl absolute top-4 right-4">×</button>
 
-  <!-- PROFILE HEADER -->
-  <div class="mt-10 text-center">
-    <button id="profileToggle" class="mx-auto w-full bg-transparent border-none text-white">
-      <img id="profilePic" src="https://img.icons8.com/ios-filled/100/ffffff/user-male-circle.png" alt="profile" class="mx-auto w-20 h-20 rounded-full border-2 border-brand mb-3 object-cover"/>
-      <h3 id="profileName" class="font-semibold text-lg">Guest</h3>
-      <p id="profileMeta" class="text-sm text-gray-300">Age: — • Gender: —</p>
-    </button>
+    <!-- PROFILE HEADER -->
+    <div class="mt-10 text-center">
+      <button id="profileToggle" class="mx-auto w-full bg-transparent border-none text-white">
+        <img id="profilePic" src="https://img.icons8.com/ios-filled/100/ffffff/user-male-circle.png" alt="profile" class="mx-auto w-20 h-20 rounded-full border-2 border-brand mb-3 object-cover"/>
+        <h3 id="profileName" class="font-semibold text-lg">Guest</h3>
+        <p id="profileMeta" class="text-sm text-gray-300">Age: — • Gender: —</p>
+      </button>
 
-    <!-- PROFILE OPTIONS -->
-    <div id="profileOptions" class="profile-options mt-3 px-2">
-      <button id="editProfileBtn" class="w-full text-left px-3 py-2 rounded hover:bg-white/10">Edit Profile</button>
-      <button id="viewOrdersBtn" class="w-full text-left px-3 py-2 rounded hover:bg-white/10">My Orders</button>
-      <button id="settingsBtn" class="w-full text-left px-3 py-2 rounded hover:bg-white/10">Settings</button>
-      <button id="notificationsBtn" class="w-full text-left px-3 py-2 rounded hover:bg-white/10">Notifications</button>
-      <button id="cartBtn" class="w-full text-left px-3 py-2 rounded hover:bg-white/10">Cart</button>
-      <button id="wishlistBtn" class="w-full text-left px-3 py-2 rounded hover:bg-white/10">Wishlist</button>
-      <button id="deliveryBtn" class="w-full text-left px-3 py-2 rounded hover:bg-white/10">Delivery Tracking</button>
-      <button id="supportBtn" class="w-full text-left px-3 py-2 rounded hover:bg-white/10">Support</button>
-      <button id="logoutBtn" class="w-full text-left px-3 py-2 rounded hover:bg-white/10">Logout</button>
+      <!-- PROFILE OPTIONS -->
+      <div id="profileOptions" class="profile-options mt-3 px-2">
+        <button id="editProfileBtn" class="w-full text-left px-3 py-2 rounded hover:bg-white/10">Edit Profile</button>
+        <button id="viewOrdersBtn" class="w-full text-left px-3 py-2 rounded hover:bg-white/10">My Orders</button>
+        <button id="settingsBtn" class="w-full text-left px-3 py-2 rounded hover:bg-white/10">Settings</button>
+        <button id="notificationsBtn" class="w-full text-left px-3 py-2 rounded hover:bg-white/10">Notifications</button>
+        <button id="cartBtn" class="w-full text-left px-3 py-2 rounded hover:bg-white/10">Cart</button>
+        <button id="wishlistBtn" class="w-full text-left px-3 py-2 rounded hover:bg-white/10">Wishlist</button>
+        <button id="deliveryBtn" class="w-full text-left px-3 py-2 rounded hover:bg-white/10">Delivery Tracking</button>
+        <button id="supportBtn" class="w-full text-left px-3 py-2 rounded hover:bg-white/10">Support</button>
+
+        <!-- both Login and Sign Out buttons (we show/hide them based on auth) -->
+        <button id="signinBtn" class="w-full mt-4 bg-brand text-black px-3 py-2 rounded-full font-semibold">Login</button>
+        <button id="signoutBtn" class="w-full mt-2 bg-white text-brand border border-brand px-3 py-2 rounded-full font-semibold" style="display:none;">Sign Out</button>
+      </div>
     </div>
-  </div>
 
-  <!-- CONTACT -->
-  <div class="mt-6">
-    <button class="accordion-btn text-white" id="contactToggle">
-      <span class="flex items-center">
-        <svg class="icon-small" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 8V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v1" stroke="#ff6600" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        Contact
-      </span>
-      <span id="contactArrow">▼</span>
-    </button>
+    <!-- CONTACT -->
+    <div class="mt-6">
+      <button class="accordion-btn text-white" id="contactToggle">
+        <span class="flex items-center">
+          <svg class="icon-small" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 8V7a2 2 0 0 0-2-2H5a2 2 0 0 0-2 2v1" stroke="#ff6600" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Contact
+        </span>
+        <span id="contactArrow">▼</span>
+      </button>
 
-    <div id="contactBlock" class="hidden-block text-sm px-2 mt-2">
-      <p><strong>Customer Service:</strong> <span class="text-white">08117854139</span></p>
-      <p><strong>Email:</strong> <a href="mailto:olaniyioluwafunke08@gmail.com" class="text-brand">olaniyioluwafunke08@gmail.com</a></p>
-      <p><strong>WhatsApp:</strong> <a href="https://wa.me/+2348117854139" target="_blank" class="text-brand">08117854139</a></p>
+      <div id="contactBlock" class="hidden-block text-sm px-2 mt-2">
+        <p><strong>Customer Service:</strong> <span class="text-white">08117854139</span></p>
+        <p><strong>Email:</strong> <a href="mailto:olaniyioluwafunke08@gmail.com" class="text-brand">olaniyioluwafunke08@gmail.com</a></p>
+        <p><strong>WhatsApp:</strong> <a href="https://wa.me/+2348117854139" target="_blank" class="text-brand">08117854139</a></p>
+      </div>
     </div>
-  </div>
 
-  <!-- ABOUT + HELP -->
-  <div class="mt-6 border-t border-white/10 pt-4">
-    <button class="accordion-btn text-white" id="aboutToggle">
-      <span class="flex items-center">
-        <svg class="icon-small" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2v4M12 22v-4M4.22 4.22l2.83 2.83M17 17l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M17 7l2.83-2.83" stroke="#ff6600" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        About Black 🖤
-      </span>
-      <span id="aboutArrow">▼</span>
-    </button>
+    <!-- ABOUT + HELP -->
+    <div class="mt-6 border-t border-white/10 pt-4">
+      <button class="accordion-btn text-white" id="aboutToggle">
+        <span class="flex items-center">
+          <svg class="icon-small" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2v4M12 22v-4M4.22 4.22l2.83 2.83M17 17l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M17 7l2.83-2.83" stroke="#ff6600" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          About Black 🖤
+        </span>
+        <span id="aboutArrow">▼</span>
+      </button>
 
-    <div id="aboutBlock" class="hidden-block text-sm px-2 mt-2">
-      <p class="text-gray-300 leading-relaxed">
-        Black is your go-to online fashion store — where confidence meets class.
-      </p>
+      <div id="aboutBlock" class="hidden-block text-sm px-2 mt-2">
+        <p class="text-gray-300 leading-relaxed">
+          Black is your go-to online fashion store — where confidence meets class.
+        </p>
 
-      <div class="mt-3">
-        <button class="accordion-btn text-white" id="helpToggle">
-          <span>Help & Support</span>
-          <span id="helpArrow">▼</span>
-        </button>
+        <div class="mt-3">
+          <button class="accordion-btn text-white" id="helpToggle">
+            <span>Help & Support</span>
+            <span id="helpArrow">▼</span>
+          </button>
 
-        <div id="helpBlock" class="hidden-block mt-2">
-          <p class="text-gray-300 text-sm mb-2">Tell us what's going on — we'll contact you by email.</p>
-
-          <form id="helpForm" class="space-y-2">
-            <input type="text" id="helpName" placeholder="Your name" class="w-full px-3 py-2 rounded bg-white/5 border border-white/10 text-white" required />
-            <input type="email" id="helpEmail" placeholder="Your email" class="w-full px-3 py-2 rounded bg-white/5 border border-white/10 text-white" required />
-            <textarea id="helpMessage" rows="4" placeholder="Describe your issue..." class="w-full px-3 py-2 rounded bg-white/5 border border-white/10 text-white" required></textarea>
-
-            <div class="flex gap-2">
-              <button type="button" id="sendHelpBtn" class="flex-1 px-3 py-2 bg-brand text-white rounded">Send</button>
-              <button type="button" id="clearHelpBtn" class="flex-1 px-3 py-2 bg-white text-black rounded">Clear</button>
-            </div>
-
-            <p id="helpStatus" class="text-sm mt-1"></p>
-          </form>
-
+          <div id="helpBlock" class="hidden-block mt-2">
+            <p class="text-gray-300 text-sm mb-2">Tell us what's going on — we'll contact you by email.</p>
+            <form id="helpForm" class="space-y-2">
+              <input type="text" id="helpName" placeholder="Your name" class="w-full px-3 py-2 rounded bg-white/5 border border-white/10 text-white" required />
+              <input type="email" id="helpEmail" placeholder="Your email" class="w-full px-3 py-2 rounded bg-white/5 border border-white/10 text-white" required />
+              <textarea id="helpMessage" rows="4" placeholder="Describe your issue..." class="w-full px-3 py-2 rounded bg-white/5 border border-white/10 text-white" required></textarea>
+              <div class="flex gap-2">
+                <button type="button" id="sendHelpBtn" class="flex-1 px-3 py-2 bg-brand text-white rounded">Send</button>
+                <button type="button" id="clearHelpBtn" class="flex-1 px-3 py-2 bg-white text-black rounded">Clear</button>
+              </div>
+              <p id="helpStatus" class="text-sm mt-1"></p>
+            </form>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-</aside>
+  </aside>
 
-<!-- MENU NAVIGATION SCRIPTS -->
-<script>
-document.getElementById("editProfileBtn").onclick = () => window.location.href = "editprofile.html";
-document.getElementById("viewOrdersBtn").onclick = () => window.location.href = "order.html";
-document.getElementById("settingsBtn").onclick = () => window.location.href = "sittings.html";
-document.getElementById("notificationsBtn").onclick = () => window.location.href = "notifications.html";
-document.getElementById("cartBtn").onclick = () => window.location.href = "cart.html";
-document.getElementById("wishlistBtn").onclick = () => window.location.href = "wishlist.html";
-document.getElementById("deliveryBtn").onclick = () => window.location.href = "deliverytracking.html";
-document.getElementById("supportBtn").onclick = () => window.location.href = "support.html";
-document.getElementById("logoutBtn").onclick = () => window.location.href = "signout.html";
-</script>
-  
+  <div id="overlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-40"></div>
+
   <!-- FOOTER -->
   <footer class="bg-gray-900 text-white text-center py-6 mt-10">
     <p>&copy; 2025 Black. All rights reserved.</p>
     <p class="text-sm text-gray-400">Design by DamiTools.</p>
   </footer>
 
-  <!-- SCRIPTS (includes deterministic generator used also by product.html) -->
+  <!-- SCRIPTS -->
   <script type="module">
   // ---- Firebase (auth only) ----
   import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
@@ -265,21 +253,21 @@ document.getElementById("logoutBtn").onclick = () => window.location.href = "sig
 
   const firebaseConfig = {
     apiKey: "AIzaSyDsrL5UHWeFtQAX5XCI1hX7As91PWz59Cs",
-    authDomain: "black-1108.firebaseapp.com",
+    authDomain: "black-1108.appspot.com",
     projectId: "black-1108",
-    storageBucket: "black-1108.firebasestorage.app",
+    storageBucket: "black-1108.appspot.app",
     messagingSenderId: "639439190327",
     appId: "1:639439190327:web:b08b640aba7e8f7d76c2b2",
     measurementId: "G-6T8NZV9YB9"
   };
+
   const app = initializeApp(firebaseConfig);
   const auth = getAuth(app);
 
-  // Initialize EmailJS
-  // public key: Cp84jtP5v8VnUc0SQ
+  // Initialize EmailJS (keeps your existing integration)
   window.emailjs && emailjs.init && emailjs.init('Cp84jtP5v8VnUc0SQ');
 
-  // UI refs
+  // UI refs (all expected elements are present in DOM)
   const menuBtn = document.getElementById('menuBtn');
   const sidebar = document.getElementById('sidebar');
   const overlay = document.getElementById('overlay');
@@ -292,7 +280,7 @@ document.getElementById("logoutBtn").onclick = () => window.location.href = "sig
   const profileOptions = document.getElementById('profileOptions');
   const editProfileBtn = document.getElementById('editProfileBtn');
   const viewOrdersBtn = document.getElementById('viewOrdersBtn');
-  const logoutBtn = document.getElementById('logoutBtn');
+  const logoutBtn = document.getElementById('logoutBtn'); // not used but kept for compatibility
   const productGrid = document.getElementById('productGrid');
   const categoryList = document.getElementById('categoryList');
   const cartCountEl = document.getElementById('cartCount');
@@ -322,74 +310,56 @@ document.getElementById("logoutBtn").onclick = () => window.location.href = "sig
   menuBtn.addEventListener('click', openSidebar);
   closeSidebar.addEventListener('click', closeMenu);
   overlay.addEventListener('click', closeMenu);
-  // Login button
-signinBtn.addEventListener('click', () => {
-  window.location.href = 'login.html';
-});
 
-// Sign out
-signoutBtn.addEventListener('click', async () => {
-  try {
-    await signOut(auth);
-    window.location.href = 'login.html';
-  } catch (e) {
-    alert(e.message);
-  }
-});
-    
-  // profile toggle
+  // Login button goes to login page
+  signinBtn.addEventListener('click', ()=> window.location.href = 'login.html');
+
+  // Sign out button (updates UI via onAuthStateChanged)
+  signoutBtn.addEventListener('click', async ()=> {
+    try { await signOut(auth); window.location.href = 'login.html'; } catch(e){ alert(e.message); }
+  });
+
+  // profile toggle (show/hide profile options)
   profileToggle.addEventListener('click', ()=>{
-    if (profileOptions.style.display === 'block') { profileOptions.style.display = 'none'; } else { profileOptions.style.display = 'block'; }
-  });
-  logoutBtn.addEventListener('click', async ()=> {
-    try { await signOut(auth); window.location.href='login.html'; } catch(e){ alert(e.message); }
+    profileOptions.style.display = (profileOptions.style.display === 'block') ? 'none' : 'block';
   });
 
-  // contact accordion
+  // help/contact accordions
   contactToggle.addEventListener('click', ()=>{
     if (contactBlock.style.display === 'block') { contactBlock.style.display = 'none'; contactArrow.textContent = '▼'; } else { contactBlock.style.display = 'block'; contactArrow.textContent = '▲'; }
   });
-
-  // about accordion (contains help)
   aboutToggle.addEventListener('click', ()=>{
     if (aboutBlock.style.display === 'block') { aboutBlock.style.display = 'none'; aboutArrow.textContent = '▼'; } else { aboutBlock.style.display = 'block'; aboutArrow.textContent = '▲'; }
   });
-
-  // help accordion (inside about)
   helpToggle.addEventListener('click', ()=>{
     if (helpBlock.style.display === 'block') { helpBlock.style.display = 'none'; helpArrow.textContent = '▼'; } else { helpBlock.style.display = 'block'; helpArrow.textContent = '▲'; }
   });
 
-  // help form send via EmailJS
+  // help form -> emailjs
   sendHelpBtn.addEventListener('click', ()=>{
     const name = document.getElementById('helpName').value.trim();
     const email = document.getElementById('helpEmail').value.trim();
     const message = document.getElementById('helpMessage').value.trim();
     if (!name || !email || !message) { helpStatus.textContent = 'Please fill out all fields.'; helpStatus.style.color = '#ffcc00'; return; }
-    helpStatus.textContent = 'Sending...';
-    helpStatus.style.color = '#fff';
-    const templateParams = {
-      from_name: name,
-      reply_to: email,
-      message: message
-    };
-    // service: service_rg6m82u, template: template_n9i0263
+    helpStatus.textContent = 'Sending...'; helpStatus.style.color = '#fff';
+    const templateParams = { from_name: name, reply_to: email, message: message };
     emailjs.send('service_rg6m82u','template_n9i0263', templateParams)
-      .then((res) => {
-        helpStatus.textContent = 'Message sent — we will contact you soon.';
-        helpStatus.style.color = '#7fff7f';
-        helpForm.reset();
-      }, (err) => {
-        helpStatus.textContent = 'Failed to send. Try again later.';
-        helpStatus.style.color = '#ff7f7f';
-        console.error('EmailJS error', err);
-      });
+      .then(() => { helpStatus.textContent = 'Message sent — we will contact you soon.'; helpStatus.style.color = '#7fff7f'; helpForm.reset(); })
+      .catch((err) => { helpStatus.textContent = 'Failed to send. Try again later.'; helpStatus.style.color = '#ff7f7f'; console.error(err); });
   });
+  clearHelpBtn.addEventListener('click', ()=> { helpForm.reset(); helpStatus.textContent = ''; });
 
-  clearHelpBtn.addEventListener('click', ()=> {
-    helpForm.reset();
-    helpStatus.textContent = '';
-  });
+  // menu navigation shortcuts
+  editProfileBtn.addEventListener('click', ()=> window.location.href = 'editprofile.html');
+  viewOrdersBtn.addEventListener('click', ()=> window.location.href = 'order.html');
+
+  // sidebar quick links (we use buttons in profileOptions)
+  document.getElementById('settingsBtn').addEventListener('click', ()=> window.location.href = 'sittings.html');
+  document.getElementById('notificationsBtn').addEventListener('click', ()=> window.location.href = 'notifications.html');
+  document.getElementById('cartBtn').addEventListener('click', ()=> window.location.href = 'cart.html');
+  document.getElementById('wishlistBtn').addEventListener('click', ()=> window.location.href = 'wishlist.html');
+  document.getElementById('deliveryBtn').addEventListener('click', ()=> window.location.href = 'deliverytracking.html');
+  document.getElementById('supportBtn').addEventListener('click', ()=> window.location.href = 'support.html');
 
   // categories (must match generator)
   const categories = [
@@ -410,13 +380,13 @@ signoutBtn.addEventListener('click', async () => {
     categoryList.appendChild(wrapper);
   });
 
-  // random banner rotation (kept)
+  // random banner rotation
   const bannerSeeds = ['banner1','banner2','banner3','banner4'];
   function changeBanner(){ randomProduct.src = `https://picsum.photos/seed/${bannerSeeds[Math.floor(Math.random()*bannerSeeds.length)]}/1500/300`; }
   changeBanner();
   setInterval(changeBanner, 6000);
 
-  // more realistic product generator (200 products)
+  // product generator
   const sampleAdjectives = ["Classic","Modern","Stylish","Comfort","Premium","Urban","Luxury","Casual","Elite","Cozy","Vintage","Sport","Slim","Relaxed","Smart"];
   const sampleItems = ["Polo Shirt","Summer Dress","Sneakers","Heels","Chain Necklace","Gold Ring","Boxer Briefs","Underwear Set","Round Neck Tee","Jumper","Bedsheet Set","Pilot Cap","Wall Cutter","Leather Jacket","Socks Pack","Hoodie","Cargo Pants","Denim Jacket","Wallet","Handbag"];
   function rand(min,max){ return Math.floor(Math.random()*(max-min+1))+min; }
@@ -425,13 +395,11 @@ signoutBtn.addEventListener('click', async () => {
   for(let i=1;i<=200;i++){
     const cat = categories[i % categories.length];
     const name = `${sampleAdjectives[i % sampleAdjectives.length]} ${sampleItems[i % sampleItems.length]} ${i}`;
-    // realistic price range by item type (approx)
     let minP = 7500, maxP = 45000;
     if (name.toLowerCase().includes('socks') || name.toLowerCase().includes('boxer') || name.toLowerCase().includes('underwear')) { minP = 2500; maxP = 9000; }
     if (name.toLowerCase().includes('rings') || name.toLowerCase().includes('chain') || name.toLowerCase().includes('handbag')) { minP = 7000; maxP = 55000; }
     const priceVal = rand(minP, maxP);
     const price = '#' + priceVal.toLocaleString();
-    // use picsum seeds for variety (realistic placeholders)
     const img = `https://picsum.photos/seed/prod${i}/600/600`;
     const imgs = [
       `https://picsum.photos/seed/prod${i}a/800/800`,
@@ -491,7 +459,7 @@ signoutBtn.addEventListener('click', async () => {
     attachListeners();
   }
 
-  // Add-to-cart behavior requires login
+  // Add-to-cart behavior requires login (uses auth.currentUser)
   let cartCount = 0;
   function attachListeners(){
     document.querySelectorAll('.add-to-cart').forEach(btn=>{
@@ -533,37 +501,32 @@ signoutBtn.addEventListener('click', async () => {
     }
   });
 
-  // Deterministic product detail modal kept for quick preview (optional)
+  // modal close
   const modal = document.getElementById('productModal');
   const closeModal = document.getElementById('closeModal');
   closeModal?.addEventListener('click', ()=>{ modal.classList.add('hidden'); });
 
-  // --- ONE COMBINED AUTH STATE HANDLER ---
-onAuthStateChanged(auth, user => {
-
-  // AUTH PROTECTION
-  if (!user) {
-    if (!window.location.pathname.includes('login.html')) {
-      window.location.href = 'login.html';
+  // --- Single combined auth state handler (clean & reliable) ---
+  onAuthStateChanged(auth, user => {
+    if (!user) {
+      // If the visitor is not logged in, show guest UI but do NOT redirect from login/signup pages
+      profileNameEl.textContent = 'Guest';
+      profilePicEl.src = 'https://img.icons8.com/ios-filled/100/ffffff/user-male-circle.png';
+      profileOptions.style.display = 'none';
+      signoutBtn.style.display = 'none';
+      signinBtn.style.display = 'inline-block';
+      return;
     }
-    // Guest UI
-    profileNameEl.textContent = 'Guest';
-    profilePicEl.src = 'https://img.icons8.com/ios-filled/100/ffffff/user-male-circle.png';
-    profileOptions.style.display = 'none';
-    signoutBtn.style.display = 'none';
-    signinBtn.style.display = 'inline-block';
-    return;
-  }
 
-  // LOGGED IN UI
-  const name = user.displayName || (user.email ? user.email.split('@')[0] : 'User');
-  profileNameEl.textContent = name.split(' ')[0];
-  profilePicEl.src = user.photoURL || `https://picsum.photos/seed/avatar${user.uid}/200/200`;
+    // Logged-in UI
+    const name = user.displayName || (user.email ? user.email.split('@')[0] : 'User');
+    profileNameEl.textContent = name.split(' ')[0];
+    profilePicEl.src = user.photoURL || `https://picsum.photos/seed/avatar${user.uid}/200/200`;
+    profileOptions.style.display = 'block';
+    signoutBtn.style.display = 'inline-block';
+    signinBtn.style.display = 'none';
+  });
 
-  profileOptions.style.display = 'block';
-  signoutBtn.style.display = 'inline-block';
-  signinBtn.style.display = 'none';
-});
   </script>
 
 </body>
