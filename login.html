@@ -65,33 +65,39 @@
 
   </div>
 
-  <!-- Firebase Auth -->
+  <!-- Firestore Login System -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
-    import { 
-      getAuth, 
-      signInWithEmailAndPassword,
-      onAuthStateChanged 
-    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+    import {
+      getFirestore,
+      collection,
+      getDocs
+    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
     const firebaseConfig = {
-  apiKey: "AIzaSyDsrL5UHWeFtQAX5XCI1hX7As91PWz59Cs",
-  authDomain: "black-1108.firebaseapp.com",
-  projectId: "black-1108",
-  storageBucket: "black-1108.appspot.com",
-  messagingSenderId: "639439190327",
-  appId: "1:639439190327:web:b08b640aba7e8f7d76c2b2"
-   };
+      apiKey: "AIzaSyDsrL5UHWeFtQAX5XCI1hX7As91PWz59Cs",
+      authDomain: "black-1108.firebaseapp.com",
+      projectId: "black-1108",
+      storageBucket: "black-1108.appspot.com",
+      messagingSenderId: "639439190327",
+      appId: "1:639439190327:web:b08b640aba7e8f7d76c2b2"
+    };
 
     const app = initializeApp(firebaseConfig);
-    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-    // ✅ AUTH PROTECTION (If user already logged in → send to homepage)
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        window.location.href = "index.html";
-      }
-    });
+    // 🔒 If already logged in → redirect
+    if (localStorage.getItem("blackUser")) {
+      window.location.href = "index.html";
+    }
+
+    async function hashPassword(pass) {
+      const msgUint8 = new TextEncoder().encode(pass);
+      const hashBuffer = await crypto.subtle.digest("SHA-256", msgUint8);
+      return Array.from(new Uint8Array(hashBuffer))
+        .map(b => b.toString(16).padStart(2, "0"))
+        .join("");
+    }
 
     const signinBtn = document.getElementById("signinBtn");
     const emailEl = document.getElementById("email");
@@ -112,10 +118,30 @@
       signinBtn.disabled = true;
 
       try {
-        await signInWithEmailAndPassword(auth, email, password);
-        window.location.href = "index.html"; // redirect back to shop
+        const usersSnap = await getDocs(collection(db, "users"));
+        const hashed = await hashPassword(password);
+
+        let foundUser = null;
+
+        usersSnap.forEach((doc) => {
+          const user = doc.data();
+          if (user.email === email && user.password === hashed) {
+            foundUser = doc.id;
+          }
+        });
+
+        if (!foundUser) {
+          showError("Invalid email or password.");
+        } else {
+          // Save login session
+          localStorage.setItem("blackUser", foundUser);
+
+          // Redirect
+          window.location.href = "index.html";
+        }
+
       } catch (err) {
-        showError(err.message);
+        showError("Error: " + err.message);
       }
 
       loading.classList.add("hidden");
