@@ -590,3 +590,107 @@ DOCTYPE html>
   window.updateCartCount = updateCartCountLocal;
 
 </script>
+
+  <!-- NON-MODULE: localStorage cart helper (keeps addToCart for non-module code) -->
+<script>
+  (function(){
+    // Helper: get cart from localStorage
+    function getCart() {
+      try {
+        return JSON.parse(localStorage.getItem('cart')) || [];
+      } catch (e) {
+        return [];
+      }
+    }
+
+    // Helper: save cart
+    function saveCart(cart) {
+      localStorage.setItem('cart', JSON.stringify(cart));
+      if (window.updateCartCount) window.updateCartCount();
+    }
+
+    // Add product to cart by productId (uses global `products` array)
+    window.addToCart = function(productId) {
+      if (!window.products || !Array.isArray(window.products)) {
+        console.error('Products list not found.');
+        return;
+      }
+
+      const prod = window.products.find(p => Number(p.id) === Number(productId));
+      if (!prod) {
+        console.error('Product not found for id', productId);
+        return;
+      }
+
+      // require logged-in user: check firebase auth if available
+      const authObj = window.auth;
+      if (authObj && !authObj.currentUser) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      const cart = getCart();
+      const existing = cart.find(i => Number(i.id) === Number(prod.id));
+      if (existing) {
+        existing.qty = (existing.qty || 0) + 1;
+      } else {
+        cart.push({
+          id: prod.id,
+          productId: prod.id,
+          name: prod.name,
+          priceVal: prod.priceVal || 0,
+          priceText: prod.price || ('#' + (prod.priceVal || 0)),
+          img: prod.img,
+          qty: 1,
+          options: {}
+        });
+      }
+      saveCart(cart);
+
+      // tiny toast feedback
+      try {
+        const t = document.createElement('div');
+        t.textContent = `${prod.name} added to cart`;
+        t.style.position = 'fixed';
+        t.style.right = '16px';
+        t.style.bottom = '16px';
+        t.style.background = '#111';
+        t.style.color = '#fff';
+        t.style.padding = '10px 14px';
+        t.style.borderRadius = '8px';
+        t.style.boxShadow = '0 6px 18px rgba(0,0,0,0.2)';
+        document.body.appendChild(t);
+        setTimeout(()=> t.remove(), 1600);
+      } catch(e){}
+    };
+
+    // Delegated handler: catch clicks on any .add-to-cart buttons
+    document.addEventListener('click', function(e){
+      const btn = e.target.closest('.add-to-cart');
+      if (!btn) return;
+      e.preventDefault();
+      const id = btn.getAttribute('data-id');
+      if (!id) return;
+      // prefer firebase auth if defined
+      const authObj = window.auth;
+      if (authObj && !authObj.currentUser) {
+        window.location.href = 'login.html';
+        return;
+      }
+      if (typeof window.addToCart === 'function') {
+        window.addToCart(Number(id));
+      }
+    });
+
+    // Keep cart count updated when storage changes (in case user opens multiple tabs)
+    window.addEventListener('storage', function(e){
+      if (e.key === 'cart' && window.updateCartCount) window.updateCartCount();
+    });
+
+    // initialize cart count on load (idempotent)
+    if (window.updateCartCount) window.updateCartCount();
+  })();
+</script>
+
+</body>
+</html>
